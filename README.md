@@ -14,7 +14,7 @@
 
 MD Studio ist ein vollständiger Markdown-Editor, der als **eine einzige `.html`-Datei** funktioniert. Einfach herunterladen, im Browser öffnen — fertig. Keine Installation, kein Server, keine Cloud. Alle Dateien bleiben lokal auf deinem Rechner.
 
-Entwickelt für die tägliche Arbeit mit Markdown-Dokumenten, strukturierten Formularen und digitalen Sammlungsbeschreibungen.
+Entwickelt für die tägliche Arbeit mit Markdown-Dokumenten, strukturierten Formularen.
 
 ---
 
