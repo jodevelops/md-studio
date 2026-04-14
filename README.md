@@ -145,14 +145,6 @@ Die vollständige Benutzeranleitung ist in [`handbuch.md`](handbuch.md) enthalte
 
 ---
 
-## Entwicklungskontext
-
-MD Studio wurde im Rahmen des Projekts **DCB — Digital Collections Bern** (Geographisches Institut, Universität Bern) entwickelt, um strukturierte Metadaten-Dokumente (Fachkonzepte) lokal und ohne Infrastruktur bearbeiten zu können.
-
-Der mitgelieferte Template `fk_template_generisch_v10.md` zeigt den vollständigen Formular-Modus in der Praxis: ein 900-zeiliges Fachkonzept-Dokument mit ~200 Formularfeldern, navigierbarem IVZ und YAML-Frontmatter als Datenspeicher.
-
----
-
 ## License
 
 MIT — frei verwendbar, änderbar, verteilbar. Volltext in [`LICENSE`](LICENSE).
