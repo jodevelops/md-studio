@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MD Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+:root{
+  --sw:220px;--th:44px;--sh:26px;
+  --bg-app:#0f0f0f;--bg-sb:#111;--bg-tb:#0d0d0d;
+  --bg-ed:#181818;--bg-pv:#fdfaf5;
+  --acc:#c8860a;--acc2:#e09a1a;
+  --bd:#242424;--tui:#b8b4ac;--tdim:#555;--ted:#ddd8d0;
+  --ok:#5ba85a;--warn:#c8860a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);color:var(--tui);display:flex;height:100vh}
+#sidebar{width:var(--sw);min-width:var(--sw);display:flex;flex-direction:column;background:var(--bg-sb);border-right:1px solid var(--bd);overflow:hidden}
+.sb-head{padding:12px 10px 10px;border-bottom:1px solid var(--bd)}
+.logo{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.logo-ico{width:22px;height:22px;background:var(--acc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#000;flex-shrink:0}
+.logo-txt{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#fff}
+.sb-btns{display:flex;gap:5px}
+.sbb{flex:1;padding:5px 4px;background:#1e1e1e;border:1px solid #2a2a2a;color:var(--tui);font-size:10.5px;cursor:pointer;border-radius:3px;transition:all .15s;white-space:nowrap;text-align:center}
+.sbb:hover{background:#252525;border-color:#3a3a3a;color:#fff}
+.sbb.p{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
+.sbb.p:hover{background:var(--acc2)}
+#dir-info{padding:5px 10px 3px;font-size:10px;color:var(--tdim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fsa-warn{margin:4px 8px;padding:5px 8px;background:#1a1000;border:1px solid #3a2800;border-radius:3px;font-size:10px;color:var(--acc);line-height:1.5;display:none}
+#file-list{flex:1;overflow-y:auto;padding:4px 0}
+#file-list::-webkit-scrollbar{width:3px}
+#file-list::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px}
+.fi{display:flex;align-items:center;gap:5px;padding:5px 10px;font-size:11.5px;cursor:pointer;color:var(--tui);transition:background .1s;overflow:hidden;user-select:none}
+.fi:hover{background:#1a1a1a}
+.fi.active{background:#1c1f24;color:#fff;border-left:2px solid var(--acc);padding-left:8px}
+.fi-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.fi-dot{width:6px;height:6px;background:var(--acc);border-radius:50%;flex-shrink:0;opacity:0}
+.fi.mod .fi-dot{opacity:1}
+.sb-foot{padding:7px 10px;border-top:1px solid var(--bd);font-size:9.5px;color:var(--tdim);text-align:center}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#toolbar{height:var(--th);background:var(--bg-tb);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 6px;gap:2px;flex-shrink:0;overflow-x:auto}
+#toolbar::-webkit-scrollbar{height:0}
+.sep{width:1px;height:20px;background:var(--bd);margin:0 3px;flex-shrink:0}
+.sp{flex:1}
+.fn{padding:0 6px;font-size:12.5px;color:#ddd;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.tb{display:flex;align-items:center;gap:4px;padding:4px 7px;background:transparent;border:1px solid transparent;color:var(--tui);font-size:11px;cursor:pointer;border-radius:4px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tb:hover{background:#1e1e1e;border-color:#2e2e2e;color:#fff}
+.tb.on{background:#1a1d22;border-color:var(--acc);color:var(--acc)}
+.tb.go{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
+.tb.go:hover{background:var(--acc2)}
+#work{flex:1;display:flex;overflow:hidden;position:relative}
+#empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tdim);transition:background .15s}
+#empty.dov{background:rgba(200,134,10,.07)}
+#empty h2{font-size:15px;font-weight:500;color:#3a3a3a}
+#empty p{font-size:11.5px;text-align:center;max-width:220px;line-height:1.6}
+.drop-hint{margin-top:8px;padding:6px 14px;border:1px dashed #2a2a2a;border-radius:20px;font-size:10.5px;color:#333;transition:border-color .15s,color .15s}
+#empty.dov .drop-hint{border-color:var(--acc);color:var(--acc)}
+#ed-pane{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--bg-ed)}
+#editor{flex:1;width:100%;background:var(--bg-ed);color:var(--ted);border:none;outline:none;resize:none;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;-webkit-font-smoothing:antialiased}
+#editor::selection{background:rgba(200,134,10,.28)}
+#divider{width:5px;background:var(--bd);cursor:col-resize;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+#divider::after{content:'';width:2px;height:32px;background:#333;border-radius:1px}
+#divider:hover,#divider.drag{background:rgba(200,134,10,.4)}
+#divider:hover::after,#divider.drag::after{background:var(--acc)}
+#prev-pane,#form-pane{min-width:0;overflow-y:auto;background:var(--bg-pv)}
+#prev-pane::-webkit-scrollbar,#form-pane::-webkit-scrollbar{width:6px}
+#prev-pane::-webkit-scrollbar-track,#form-pane::-webkit-scrollbar-track{background:#f0ebe0}
+#prev-pane::-webkit-scrollbar-thumb,#form-pane::-webkit-scrollbar-thumb{background:#c8b890;border-radius:3px}
+.mdb{max-width:960px;margin:0 auto;padding:28px 28px 60px;color:#2a2210;font-family:Georgia,Cambria,'Times New Roman',serif;font-size:15.5px;line-height:1.8}
+.mdb h1,.mdb h2,.mdb h3,.mdb h4,.mdb h5,.mdb h6{font-family:system-ui,sans-serif;color:#1a1000;margin:1.4em 0 .45em;line-height:1.25;font-weight:700}
+.mdb h1{font-size:2em;border-bottom:2.5px solid #e6dcc8;padding-bottom:.28em;margin-top:.7em}
+.mdb h2{font-size:1.5em;border-bottom:1px solid #e6dcc8;padding-bottom:.2em}
+.mdb h3{font-size:1.2em}.mdb h4{font-size:1em}
+.mdb p{margin:.7em 0}
+.mdb a{color:var(--acc);text-decoration:underline}
+.mdb strong{font-weight:700;color:#1a1000}.mdb em{font-style:italic}
+.mdb code{font-family:'Cascadia Code','Fira Code',monospace;font-size:.83em;background:#ede8da;padding:.13em .38em;border-radius:3px;color:#5c3000}
+.mdb pre{background:#1e1e1e;padding:14px 18px;border-radius:5px;overflow-x:auto;margin:.9em 0;border-left:3px solid var(--acc)}
+.mdb pre code{background:none;padding:0;font-size:12.5px;color:#ddd}
+.mdb blockquote{border-left:3px solid var(--acc);padding:6px 14px;margin:.9em 0;background:rgba(200,134,10,.06);color:#4a3a18;font-style:italic}
+.mdb table{border-collapse:collapse;width:100%;margin:.9em 0;font-size:.9em;font-family:system-ui,sans-serif}
+.mdb th{background:#1a1000;color:#fdfaf5;padding:7px 11px;text-align:left;font-size:.8em;text-transform:uppercase;letter-spacing:.05em}
+.mdb td{padding:7px 11px;border-bottom:1px solid #e0d8c4}
+.mdb tr:nth-child(even) td{background:#f4efe4}
+.mdb ul,.mdb ol{padding-left:1.4em;margin:.7em 0}.mdb li{margin:.2em 0}
+.mdb li input[type=checkbox]{width:14px;height:14px;margin-right:5px;cursor:pointer;accent-color:var(--acc);vertical-align:middle}
+.mdb li:has(>input[type=checkbox]){list-style:none;margin-left:-1.4em}
+.mdb img{max-width:100%;border-radius:4px}
+.mdb hr{border:none;border-top:2px solid #e0d8c4;margin:1.8em 0}
+.fm-box{background:#f4efe4;border:1px solid #ddd4b8;border-radius:4px;padding:9px 13px;margin-bottom:1.4em;font-family:'Cascadia Code','Fira Code',monospace;font-size:11.5px;color:#5a4820}
+.fm-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:#9a8a5a;margin-bottom:5px;font-family:system-ui,sans-serif;font-weight:600}
+.fm-k{color:#8a6820}.fm-v{color:#2a2210}
+.ff-banner{background:#f0ebe0;border:1px solid #d8ceb4;border-radius:5px;padding:9px 14px;margin-bottom:1.4em;font-family:system-ui,sans-serif;font-size:11.5px;color:#7a6030;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.ff-banner svg{flex-shrink:0;color:var(--acc);margin-top:1px}
+.ff-banner strong{color:#3a2800}.ff-banner a{color:var(--acc)}
+.ff-il{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
+.ff-in{font-family:system-ui,sans-serif;font-size:13.5px;color:#1a1000;background:#fff;border:1.5px solid #d4c9a8;border-radius:4px;padding:5px 9px;outline:none;transition:border .15s,box-shadow .15s;min-width:160px}
+.ff-in:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(200,134,10,.12)}
+.ff-in[type=date]{min-width:140px}.ff-in[type=number]{min-width:90px;max-width:130px}
+.ff-ta{font-family:system-ui,sans-serif;font-size:13.5px;color:#1a1000;background:#fff;border:1.5px solid #d4c9a8;border-radius:4px;padding:7px 10px;outline:none;resize:vertical;width:100%;transition:border .15s,box-shadow .15s;line-height:1.55;margin:.2em 0}
+.ff-ta:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(200,134,10,.12)}
+.ff-sel{font-family:system-ui,sans-serif;font-size:13.5px;color:#1a1000;background:#fff;border:1.5px solid #d4c9a8;border-radius:4px;padding:5px 28px 5px 9px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a08040' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.ff-sel:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(200,134,10,.12)}
+.ff-rg{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.ff-ro{display:flex;align-items:center;gap:5px;font-family:system-ui,sans-serif;font-size:13px;color:#2a2210;cursor:pointer;padding:3px 0}
+.ff-ro input{width:15px;height:15px;accent-color:var(--acc);cursor:pointer;flex-shrink:0}
+.ff-cw{display:flex;align-items:center;gap:7px;font-family:system-ui,sans-serif;font-size:13.5px;color:#2a2210;cursor:pointer}
+.ff-cb{width:16px;height:16px;accent-color:var(--acc);cursor:pointer;flex-shrink:0}
+.ff-rw{display:flex;align-items:center;gap:10px;width:100%}
+.ff-rng{flex:1;accent-color:var(--acc);cursor:pointer;height:4px}
+.ff-rv{font-family:monospace;font-size:13px;color:var(--acc);min-width:32px;font-weight:600}
+.ff-btn{padding:8px 20px;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:5px;border:none;background:var(--acc);color:#fff;transition:background .15s,transform .08s}
+.ff-btn:hover{background:var(--acc2);transform:translateY(-1px)}
+.ff-btn:active{transform:none}
+.ff-btn.rst{background:#e8e0cc;color:#5a4820;border:1.5px solid #d0c4a0}
+.ff-btn.rst:hover{background:#ddd5bb}
+#status{height:var(--sh);background:var(--bg-tb);border-top:1px solid var(--bd);display:flex;align-items:center;padding:0 10px;gap:14px;font-size:10.5px;color:var(--tdim);flex-shrink:0}
+.si{display:flex;align-items:center;gap:3px}
+.si.ok{color:var(--ok)}.si.warn{color:var(--warn)}
+.si-sep{color:#222;margin:0 2px}
+#search-bar{position:fixed;top:calc(var(--th) + 8px);right:14px;background:#1c1c1c;border:1px solid #383838;border-radius:6px;padding:7px 9px;align-items:center;gap:6px;z-index:60;box-shadow:0 6px 24px rgba(0,0,0,.6);min-width:280px;display:none}
+#search-bar.vis{display:flex}
+#s-in{flex:1;background:transparent;border:none;color:#fff;font-size:12.5px;outline:none}
+#s-in::placeholder{color:#444}
+#s-cnt{font-size:10.5px;color:var(--tdim);white-space:nowrap}
+.s-btn{background:transparent;border:1px solid #2e2e2e;color:var(--tui);width:20px;height:20px;cursor:pointer;border-radius:3px;font-size:10px;display:flex;align-items:center;justify-content:center}
+.s-btn:hover{background:#2a2a2a;color:#fff}
+#s-x{background:transparent;border:none;color:#444;cursor:pointer;font-size:15px;line-height:1;padding:0 1px}
+#s-x:hover{color:#fff}
+.hl{background:rgba(200,134,10,.35);border-radius:2px}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.72);align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px);display:none}
+.ovl.vis{display:flex}
+.modal{background:#1a1a1a;border:1px solid #2e2e2e;border-radius:8px;padding:20px;min-width:360px;max-width:480px;box-shadow:0 24px 60px rgba(0,0,0,.9)}
+.modal h3{font-size:13.5px;font-weight:600;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.modal h3 svg{color:var(--acc)}
+.modal label{display:block;font-size:10px;color:var(--tdim);margin:10px 0 3px;text-transform:uppercase;letter-spacing:.5px}
+.modal input[type=text]{width:100%;background:#111;border:1px solid #2a2a2a;color:#fff;padding:7px 9px;font-size:12.5px;border-radius:4px;outline:none;font-family:monospace}
+.modal input[type=text]:focus{border-color:var(--acc)}
+.m-note{font-size:10px;color:#444;margin-top:8px;line-height:1.5}
+.m-note strong{color:var(--acc)}
+.m-act{display:flex;gap:7px;margin-top:16px;justify-content:flex-end}
+.m-act button{padding:6px 14px;font-size:11.5px;cursor:pointer;border-radius:4px;border:1px solid #2e2e2e;background:#222;color:var(--tui);transition:all .15s}
+.m-act button:hover{background:#2a2a2a;color:#fff}
+.m-act button.p{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
+.m-act button.p:hover{background:var(--acc2)}
+#m-cheat .modal{min-width:min(860px,94vw);max-width:min(960px,96vw);max-height:88vh;display:flex;flex-direction:column;padding:0}
+.cs-hd{padding:16px 20px 12px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cs-hd h3{font-size:13.5px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;margin:0}
+.cs-hd h3 svg{color:var(--acc)}
+.cs-x{background:transparent;border:none;color:#555;cursor:pointer;font-size:18px;line-height:1;padding:2px 5px;border-radius:3px}
+.cs-x:hover{color:#fff;background:#2a2a2a}
+#cs-sw{padding:10px 20px 8px;border-bottom:1px solid #1e1e1e;flex-shrink:0}
+#cs-fi{width:100%;background:#111;border:1px solid #2a2a2a;color:#ddd;padding:6px 10px;font-size:12px;border-radius:4px;outline:none}
+#cs-fi:focus{border-color:var(--acc)}
+#cs-fi::placeholder{color:#444}
+#cs-body{overflow-y:auto;padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+#cs-body::-webkit-scrollbar{width:5px}
+#cs-body::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+.csg{margin-bottom:18px;break-inside:avoid}
+.csg-t{font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;color:var(--acc);font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #222;display:flex;align-items:center;gap:6px}
+.csr{display:grid;grid-template-columns:1fr 1fr;margin-bottom:2px;border-radius:4px;overflow:hidden;font-size:11.5px}
+.csr:hover .cs-sy,.csr:hover .cs-ou{background:#1e1e1e}
+.cs-sy{background:#141414;padding:4px 9px;font-family:'Cascadia Code','Fira Code',monospace;font-size:11px;color:#b8d4a8;white-space:pre-wrap;word-break:break-all;border-right:1px solid #1a1a1a}
+.cs-ou{background:#161616;padding:4px 9px;color:#c8c4bc;line-height:1.5}
+.cs-ou code{font-family:monospace;font-size:10.5px;background:#252525;padding:0 3px;border-radius:2px;color:#b8d4a8}
+.cs-ou strong{font-weight:700;color:#eee}.cs-ou em{font-style:italic;color:#ccc}
+.cs-ou del{color:#777}.cs-ou a{color:var(--acc)}
+.cs-ou mark{background:rgba(200,134,10,.3);color:#e8c878;padding:0 2px;border-radius:2px}
+.cs-ch{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#333;padding:2px 9px 4px;display:grid;grid-template-columns:1fr 1fr;margin-bottom:2px}
+.csr.hide,.csg.hide{display:none}
+#toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(8px);background:#1e1e1e;border:1px solid #2e2e2e;color:#eee;padding:7px 16px;border-radius:20px;font-size:11.5px;z-index:200;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media print{
+  html,body{height:auto!important;overflow:visible!important;display:block!important}
+  #sidebar,#toolbar,#status,#ed-pane,#divider,#search-bar,#form-pane,.ovl,#empty,#toast{display:none!important}
+  #main{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;flex:none!important}
+  #work{display:block!important;width:100%!important;height:auto!important;overflow:visible!important}
+  #prev-pane{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;flex:none!important}
+  .mdb{max-width:none!important;padding:1.2cm 1.8cm!important;height:auto!important}
+  h1,h2,h3{page-break-after:avoid}
+  pre,table,blockquote,img{page-break-inside:avoid}
+  pre{border-left:none!important;background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  pre code{color:#222!important}
+  .mdb a{color:#000!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <div class="sb-head">
+    <div class="logo"><div class="logo-ico">M&#8595;</div><span class="logo-txt">MD Studio</span></div>
+    <div class="sb-btns">
+      <button class="sbb p" id="btn-dir">&#128193; Ordner</button>
+      <button class="sbb" id="btn-files">+ Laden</button>
+      <button class="sbb" id="btn-new">&#10022; Neu</button>
+    </div>
+  </div>
+  <div id="dir-info">Kein Ordner ge&#246;ffnet</div>
+  <div id="fsa-warn">&#9888; Ordner-Zugriff ben&#246;tigt Chrome/Edge. Nutze &quot;+ Laden&quot;.</div>
+  <div id="file-list"><div style="padding:18px 12px;font-size:11.5px;color:#333;text-align:center;line-height:1.6">Ordner &#246;ffnen oder<br>Dateien laden / Drag&amp;Drop</div></div>
+  <div class="sb-foot">MD Studio &middot; lokal &amp; offline</div>
+</div>
+<div id="main">
+  <div id="toolbar">
+    <span class="fn" id="fname">Keine Datei</span>
+    <div class="sep"></div>
+    <button class="tb" id="tb-save"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Speichern</button>
+    <button class="tb" id="tb-saveas"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Version</button>
+    <button class="tb" id="tb-rename"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Umbenennen</button>
+    <div class="sep"></div>
+    <button class="tb" id="tb-date"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Datum/Version</button>
+    <div class="sep"></div>
+    <button class="tb on" id="tb-split"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg></button>
+    <button class="tb" id="tb-edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+    <button class="tb" id="tb-view"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button class="tb" id="tb-form" title="Formular-Modus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="4" rx="1"/><rect x="3" y="12" width="11" height="4" rx="1"/><rect x="16" y="12" width="5" height="4" rx="1"/><rect x="3" y="19" width="7" height="2" rx="1"/></svg> Formular</button>
+    <div class="sep"></div>
+    <button class="tb" id="tb-search"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Suchen</button>
+    <button class="tb" id="tb-cheat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> MD Syntax</button>
+    <div class="sp"></div>
+    <button class="tb go" id="tb-pdf"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</button>
+  </div>
+  <div id="work">
+    <div id="empty">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2a2a2a" stroke-width="1.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <h2>MD Studio</h2>
+      <p>Ordner &#246;ffnen oder Markdown-Dateien laden</p>
+      <div class="drop-hint">oder .md Dateien hier ablegen</div>
+    </div>
+    <div id="ed-pane" style="display:none"><textarea id="editor" spellcheck="false" placeholder="Markdown hier eingeben..."></textarea></div>
+    <div id="divider" style="display:none"></div>
+    <div id="prev-pane" style="display:none"><div id="preview" class="mdb"></div></div>
+    <div id="form-pane" style="display:none"><div id="form-content" class="mdb"></div></div>
+  </div>
+  <div id="status">
+    <span class="si" id="st-save"><svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> Bereit</span>
+    <span class="si-sep">&middot;</span><span class="si" id="st-w">0 W&#246;rter</span>
+    <span class="si-sep">&middot;</span><span class="si" id="st-c">0 Zeichen</span>
+    <span class="si-sep">&middot;</span><span class="si" id="st-l">0 Zeilen</span>
+    <span class="si-sep">&middot;</span><span class="si" id="st-p">Z 1, Sp 1</span>
+    <div class="sp"></div>
+    <span class="si" id="st-as" style="color:#383830" title="Auto-Save">&#9201; -:--</span>
+    <span class="si-sep">&middot;</span><span class="si" style="color:#333">UTF-8</span>
+  </div>
+</div>
+<div id="search-bar">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <input type="text" id="s-in" placeholder="Suchen... (Enter / Shift+Enter)">
+  <span id="s-cnt"></span>
+  <div style="display:flex;gap:3px">
+    <button class="s-btn" id="s-prev">&#9650;</button>
+    <button class="s-btn" id="s-next">&#9660;</button>
+  </div>
+  <button id="s-x" style="background:transparent;border:none;color:#444;cursor:pointer;font-size:15px;line-height:1;padding:0 1px">&#x2715;</button>
+</div>
+<div class="ovl" id="m-rename">
+  <div class="modal">
+    <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Datei umbenennen</h3>
+    <label>Neuer Dateiname</label><input type="text" id="r-name" placeholder="dateiname.md">
+    <div class="m-act"><button onclick="hideM('m-rename')">Abbrechen</button><button class="p" onclick="doRename()">Umbenennen</button></div>
+  </div>
+</div>
+<div class="ovl" id="m-saveas">
+  <div class="modal">
+    <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Als neue Version</h3>
+    <label>Dateiname</label><input type="text" id="sa-name" placeholder="datei_v2.md">
+    <div class="m-note">Wird als neue Datei gespeichert oder heruntergeladen.</div>
+    <div class="m-act"><button onclick="hideM('m-saveas')">Abbrechen</button><button class="p" onclick="doSaveAs()">Exportieren</button></div>
+  </div>
+</div>
+<div class="ovl" id="m-date">
+  <div class="modal">
+    <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Datum &amp; Version</h3>
+    <label>Datumsfeld</label><input type="text" id="d-field" value="date">
+    <label>Format</label><input type="text" id="d-fmt" value="YYYY-MM-DD" oninput="updDPrev()">
+    <label>Versionsfeld (leer = nicht &#228;ndern)</label><input type="text" id="d-vf" value="version">
+    <label>Versionswert (leer = auto-increment)</label><input type="text" id="d-vv" placeholder="z.B. 2.1">
+    <div class="m-note">Aktuell: <strong id="d-prev"></strong></div>
+    <div class="m-act"><button onclick="hideM('m-date')">Abbrechen</button><button class="p" onclick="doDateInsert()">Aktualisieren</button></div>
+  </div>
+</div>
+<div class="ovl" id="m-cheat">
+  <div class="modal">
+    <div class="cs-hd">
+      <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Markdown Syntax &middot; Schnellreferenz</h3>
+      <button class="cs-x" onclick="hideM('m-cheat')">&#x2715;</button>
+    </div>
+    <div id="cs-sw"><input type="text" id="cs-fi" placeholder="Filtern... z.B. Tabelle, fett, Link, Formular" autocomplete="off" oninput="filterCheat(this.value)"></div>
+    <div id="cs-body">
+      <div class="csg" data-g="text formatierung bold kursiv italic"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg> &#9312; Textformatierung</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe</span></div><div class="csr" data-t="fett bold stark"><div class="cs-sy">**fett** oder __fett__</div><div class="cs-ou"><strong>fett</strong></div></div><div class="csr" data-t="kursiv italic em"><div class="cs-sy">*kursiv* oder _kursiv_</div><div class="cs-ou"><em>kursiv</em></div></div><div class="csr" data-t="fett kursiv bold italic"><div class="cs-sy">***fett &amp; kursiv***</div><div class="cs-ou"><strong><em>fett &amp; kursiv</em></strong></div></div><div class="csr" data-t="durchgestrichen strikethrough del"><div class="cs-sy">~~durchgestrichen~~</div><div class="cs-ou"><del>durchgestrichen</del></div></div><div class="csr" data-t="highlight mark hervorheben"><div class="cs-sy">==markiert==</div><div class="cs-ou"><mark>markiert</mark></div></div><div class="csr" data-t="inline code monospace backtick"><div class="cs-sy">`inline code`</div><div class="cs-ou"><code>inline code</code></div></div><div class="csr" data-t="hochgestellt superscript"><div class="cs-sy">x^2^</div><div class="cs-ou">x<sup>2</sup></div></div><div class="csr" data-t="tiefgestellt subscript"><div class="cs-sy">H~2~O</div><div class="cs-ou">H<sub>2</sub>O</div></div></div>
+      <div class="csg" data-g="ueberschriften headings h1 h2 h3 h4"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12h16M4 6h16M4 18h10"/></svg> &#9313; Ueberschriften</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe</span></div><div class="csr" data-t="h1 ueberschrift heading titel"><div class="cs-sy"># H1</div><div class="cs-ou" style="font-size:14px;font-weight:700;color:#fff">H1</div></div><div class="csr" data-t="h2 ueberschrift heading"><div class="cs-sy">## H2</div><div class="cs-ou" style="font-size:12.5px;font-weight:700;color:#eee">H2</div></div><div class="csr" data-t="h3 h4 h5 h6 ueberschrift"><div class="cs-sy">### H3 / #### H4 / ##### H5</div><div class="cs-ou" style="color:#aaa">H3 &middot; H4 &middot; H5</div></div><div class="csr" data-t="h1 h2 alternativ setext"><div class="cs-sy">Titel&#10;=====&#10;Unter&#10;-----</div><div class="cs-ou" style="color:#666;font-size:10.5px">Alternativsyntax (Setext)</div></div></div>
+      <div class="csg" data-g="listen aufzaehlung bullet checkbox task todo"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg> &#9314; Listen</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe</span></div><div class="csr" data-t="liste ungeordnet bullet punkt"><div class="cs-sy">- Punkt A&#10;- Punkt B&#10;* auch moeglich</div><div class="cs-ou">&#8226; Punkt A<br>&#8226; Punkt B</div></div><div class="csr" data-t="liste geordnet nummeriert"><div class="cs-sy">1. Erster&#10;2. Zweiter</div><div class="cs-ou">1. Erster<br>2. Zweiter</div></div><div class="csr" data-t="liste verschachtelt nested einruecken sub"><div class="cs-sy">- Elternelement&#10;  - Kind&#10;    - Enkel</div><div class="cs-ou">&#8226; Elternelement<br>&nbsp;&nbsp;&#9702; Kind<br>&nbsp;&nbsp;&nbsp;&nbsp;&#9658; Enkel</div></div><div class="csr" data-t="aufgabe todo checkbox task erledigt"><div class="cs-sy">- [ ] Offen&#10;- [x] Erledigt</div><div class="cs-ou">&#9744; Offen<br>&#9745; Erledigt</div></div></div>
+      <div class="csg" data-g="links bilder url href image foto"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> &#9315; Links &amp; Bilder</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe</span></div><div class="csr" data-t="link url href"><div class="cs-sy">[Linktext](https://url.de)</div><div class="cs-ou"><a>Linktext</a></div></div><div class="csr" data-t="link tooltip title"><div class="cs-sy">[Text](url "Tooltip")</div><div class="cs-ou"><a>Text</a> (mit Tooltip)</div></div><div class="csr" data-t="link referenz id"><div class="cs-sy">[Text][id]&#10;&#10;[id]: https://url.de</div><div class="cs-ou"><a>Referenzlink</a></div></div><div class="csr" data-t="link auto url bare"><div class="cs-sy">&lt;https://url.de&gt;</div><div class="cs-ou"><a>https://url.de</a></div></div><div class="csr" data-t="bild image img foto"><div class="cs-sy">![Alt](bild.png)</div><div class="cs-ou" style="color:#888;font-size:10.5px">&#128444; Bild mit Alt-Text</div></div><div class="csr" data-t="bild link klickbar"><div class="cs-sy">[![Alt](bild.png)](url)</div><div class="cs-ou" style="color:#888;font-size:10.5px">&#128444; Klickbares Bild</div></div><div class="csr" data-t="fussnote footnote"><div class="cs-sy">Text[^1]&#10;&#10;[^1]: Fussnote.</div><div class="cs-ou" style="color:#888;font-size:10.5px">Fussnote&#185; (GFM)</div></div></div>
+      <div class="csg" data-g="code vorformatiert block fenced python js sql bash"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> &#9316; Code</div><div class="cs-ch"><span>Syntax</span><span>Hinweis</span></div><div class="csr" data-t="code inline monospace backtick"><div class="cs-sy">`code`</div><div class="cs-ou"><code>code</code></div></div><div class="csr" data-t="code block fenced zaun sprache highlighting"><div class="cs-sy">```python&#10;def f(x):&#10;    return x**2&#10;```</div><div class="cs-ou" style="color:#888;font-size:10.5px">Codeblock mit Syntax-Highlighting<br>python, js, sql, bash, yaml, json...</div></div><div class="csr" data-t="code eingerueckt indented 4 leerzeichen"><div class="cs-sy">    (4 Leerzeichen)</div><div class="cs-ou" style="color:#888;font-size:10.5px">Alternativ: 4 Leerzeichen Einzug</div></div></div>
+      <div class="csg" data-g="tabellen table spalten zeilen alignment ausrichtung"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg> &#9317; Tabellen</div><div class="cs-ch"><span>Syntax</span><span>Hinweis</span></div><div class="csr" data-t="tabelle table header spalte zeile"><div class="cs-sy">| A | B |&#10;|---|---|&#10;| 1 | 2 |</div><div class="cs-ou" style="color:#888;font-size:10.5px">Header &middot; Trennzeile &middot; Daten</div></div><div class="csr" data-t="tabelle ausrichtung alignment links rechts mitte"><div class="cs-sy">|:---|---:|:---:|&#10;| L  |  R |  M  |</div><div class="cs-ou" style="font-size:10.5px"><code>:---</code> links &nbsp;<code>---:</code> rechts &nbsp;<code>:---:</code> mitte</div></div><div class="csr" data-t="tabelle formatierung inline fett link code"><div class="cs-sy">| **Fett** | `code` |</div><div class="cs-ou" style="color:#888;font-size:10.5px">Inline-Formatierung in Zellen erlaubt</div></div></div>
+      <div class="csg" data-g="blockzitate zitate quote blockquote"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg> &#9318; Blockzitate</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe</span></div><div class="csr" data-t="zitat blockquote quote"><div class="cs-sy">&gt; Ein Zitat.</div><div class="cs-ou" style="border-left:2px solid var(--acc);padding-left:6px;color:#aaa;font-style:italic">Ein Zitat.</div></div><div class="csr" data-t="zitat verschachtelt nested"><div class="cs-sy">&gt; Aussen&#10;&gt;&gt; Innen</div><div class="cs-ou" style="color:#888;font-size:10.5px">Verschachtelt mit &gt;&gt;</div></div></div>
+      <div class="csg" data-g="trennlinie zeilenumbruch absatz hr break newline"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> &#9319; Trennlinien &amp; Umbrueche</div><div class="cs-ch"><span>Syntax</span><span>Hinweis</span></div><div class="csr" data-t="trennlinie hr horizontal rule linie"><div class="cs-sy">--- oder *** oder ___</div><div class="cs-ou" style="color:#888;font-size:10.5px">Horizontale Trennlinie</div></div><div class="csr" data-t="zeilenumbruch hard break newline leerzeichen"><div class="cs-sy">Zeile 1  &#10;Zeile 2</div><div class="cs-ou" style="color:#888;font-size:10.5px">2 Leerzeichen = harter Umbruch</div></div><div class="csr" data-t="absatz paragraph leerzeile"><div class="cs-sy">Absatz 1&#10;&#10;Absatz 2</div><div class="cs-ou" style="color:#888;font-size:10.5px">Leerzeile = neuer Absatz</div></div></div>
+      <div class="csg" data-g="frontmatter yaml metadaten header dokument"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> &#9320; Frontmatter (YAML)</div><div class="cs-ch"><span>Syntax</span><span>Hinweis</span></div><div class="csr" data-t="frontmatter yaml metadaten header"><div class="cs-sy">---&#10;title: Dokument&#10;date: 2025-01-01&#10;version: 1.0&#10;---</div><div class="cs-ou" style="color:#888;font-size:10.5px">Muss am Anfang stehen. Wird im Frontmatter-Badge angezeigt.</div></div><div class="csr" data-t="yaml liste array tags"><div class="cs-sy">tags:&#10;  - forschung&#10;  - data</div><div class="cs-ou" style="color:#888;font-size:10.5px">Listenwerte in YAML</div></div><div class="csr" data-t="yaml mehrzeilig string"><div class="cs-sy">abstract: |&#10;  Zeile 1.&#10;  Zeile 2.</div><div class="cs-ou" style="color:#888;font-size:10.5px"><code>|</code> fuer mehrzeilige Strings</div></div></div>
+      <div class="csg" data-g="sonderzeichen escapen html entities emoji kommentar"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> &#9321; Sonstiges</div><div class="cs-ch"><span>Syntax</span><span>Ausgabe/Hinweis</span></div><div class="csr" data-t="escape backslash sonderzeichen maskieren"><div class="cs-sy">\* \_ \# \[ \` \\</div><div class="cs-ou" style="color:#888;font-size:10.5px">Backslash maskiert MD-Sonderzeichen</div></div><div class="csr" data-t="html inline tag raw underline"><div class="cs-sy">&lt;u&gt;unterstrichen&lt;/u&gt;&#10;&lt;br&gt;</div><div class="cs-ou" style="color:#888;font-size:10.5px">Inline-HTML erlaubt</div></div><div class="csr" data-t="kommentar html comment ausblenden"><div class="cs-sy">&lt;!-- Kommentar --&gt;</div><div class="cs-ou" style="color:#888;font-size:10.5px">Unsichtbar in Ausgabe</div></div><div class="csr" data-t="sonderzeichen entitaet entity amp lt gt copy"><div class="cs-sy">&amp;amp; &amp;lt; &amp;copy; &amp;mdash;</div><div class="cs-ou">&amp; &lt; &copy; &mdash;</div></div></div>
+      <div class="csg" data-g="formular felder form input text textarea select radio checkbox button formular-modus"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="5" width="18" height="4" rx="1"/><rect x="3" y="12" width="11" height="4" rx="1"/><rect x="16" y="12" width="5" height="4" rx="1"/></svg> &#9322; Formular-Felder <span style="font-size:8.5px;font-weight:400;color:#555;text-transform:none;letter-spacing:0">(Formular-Modus)</span></div><div class="cs-ch"><span>Syntax</span><span>Ergebnis/Hinweis</span></div><div class="csr" data-t="formular text eingabe input feld"><div class="cs-sy">{{text:name}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Einzeiliges Textfeld; Wert in FM als <code>name:</code></div></div><div class="csr" data-t="formular text platzhalter breite"><div class="cs-sy">{{text:name:Platzhalter:280}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mit Platzhalter und Breite in px</div></div><div class="csr" data-t="formular textarea mehrzeilig text"><div class="cs-sy">{{textarea:notizen:5}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mehrzeiliges Feld, 5 Zeilen</div></div><div class="csr" data-t="formular datum date kalender"><div class="cs-sy">{{date:datum}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Datumsauswahl</div></div><div class="csr" data-t="formular zahl nummer number min max"><div class="cs-sy">{{number:menge:0:100}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Zahl mit Min/Max</div></div><div class="csr" data-t="formular select dropdown auswahl liste"><div class="cs-sy">{{select:status:offen,aktiv,fertig}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Dropdown (kommagetrennt)</div></div><div class="csr" data-t="formular multiselect mehrfach"><div class="cs-sy">{{multiselect:tags:A,B,C,D}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mehrfachauswahl</div></div><div class="csr" data-t="formular radio gruppe auswahl"><div class="cs-sy">{{radio:typ:Typ A|Typ B|Typ C}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Radio-Gruppe (pipe-getrennt)</div></div><div class="csr" data-t="formular checkbox ja nein bool"><div class="cs-sy">{{checkbox:geprueft:Geprueft}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Checkbox; true/false</div></div><div class="csr" data-t="formular slider range bereich"><div class="cs-sy">{{range:prio:1:5:1}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Schieberegler Min:Max:Schritt</div></div><div class="csr" data-t="formular button speichern absenden"><div class="cs-sy">{{button:Speichern}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Speichert alle Felder ins FM</div></div><div class="csr" data-t="formular reset zuruecksetzen"><div class="cs-sy">{{reset:Reset}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Setzt Formular zurueck</div></div><div class="csr" data-t="formular trennlinie divider"><div class="cs-sy">{{divider}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Gestrichelte Trennlinie</div></div><div class="csr" data-t="formular hinweis note info"><div class="cs-sy">{{note:Hinweistext hier}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Kursiver Hinweistext</div></div></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+// ALL CONSTANTS AT TOP — avoids temporal dead zone
+const AUTO_SAVE_SEC  = 180;
+const INIT_RATIO     = 0.38;
+const BLOCK_FF = new Set(['textarea','range','multiselect','divider','note']);
+const BTN_FF   = new Set(['button','reset']);
+
+const S = {
+  files:[], cur:-1, dirHandle:null,
+  fsaOk: typeof showDirectoryPicker === 'function',
+  view:'split', ratio:INIT_RATIO,
+  dragging:false, syncLock:false,
+  matches:[], matchIdx:0,
+  asCountdown:AUTO_SAVE_SEC, asTimer:null
+};
+
+const $  = id => document.getElementById(id);
+const ed = () => $('editor');
+const pv = () => $('preview');
+
+marked.use({gfm:true, breaks:true});
+
+// ── RENDER PREVIEW ──────────────────────────────────────────
+let _rt;
+function renderPreview(){ clearTimeout(_rt); _rt = setTimeout(_render, 70); }
+
+function _render(){
+  const {fmHtml, bodyHtml} = parseRender(ed().value);
+  pv().innerHTML = fmHtml + bodyHtml;
+  activateCB(pv());
+}
+
+function parseRender(src){
+  let fmHtml='';
+  if(src.startsWith('---')){
+    const end = src.indexOf('\n---',3);
+    if(end>0){
+      const fm=src.slice(3,end).trim();
+      src=src.slice(end+4).trim();
+      const rows=fm.split('\n').map(l=>{
+        const c=l.indexOf(':');
+        if(c>0) return '<span class="fm-k">'+E(l.slice(0,c))+':</span> <span class="fm-v">'+E(l.slice(c+1).trim())+'</span>';
+        return '<span>'+E(l)+'</span>';
+      });
+      fmHtml='<div class="fm-box"><div class="fm-lbl">Frontmatter</div>'+rows.join('<br>')+'</div>';
+    }
+  }
+  const tmp=document.createElement('div');
+  tmp.innerHTML=marked.parse(src);
+  tmp.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
+  addHeadingIds(tmp);
+  return {fmHtml, bodyHtml:tmp.innerHTML};
+}
+
+// ── HEADING IDs (GFM-compatible slug) ───────────────────────
+function gfmSlug(html){
+  const t=document.createElement('div');
+  t.innerHTML=html;
+  const text=t.textContent||'';
+  try{
+    return text.toLowerCase()
+      .replace(/[^\p{L}\p{N} -]/gu,'') // remove non-(letter|digit|space|hyphen)
+      .replace(/ /g,'-')               // each space → hyphen (preserves double spaces → --)
+      .replace(/^-+|-+$/g,'');         // trim edges
+  }catch(_){
+    // Fallback: explicit latin + extended latin range
+    return text.toLowerCase()
+      .replace(/[^a-z0-9\u00c0-\u024f -]/g,'')
+      .replace(/ /g,'-')
+      .replace(/^-+|-+$/g,'');
+  }
+}
+
+function addHeadingIds(container){
+  const seen={};
+  container.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(h=>{
+    const base=gfmSlug(h.innerHTML);
+    if(!base) return;
+    if(seen[base]===undefined){ seen[base]=0; h.id=base; }
+    else{ seen[base]++; h.id=base+'-'+seen[base]; }
+  });
+}
+
+function activateCB(container){
+  let idx=0;
+  container.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.removeAttribute('disabled');
+    const i=idx++;
+    cb.addEventListener('change',()=>{
+      let cnt=0;
+      ed().value=ed().value.replace(/(-\s*\[)([xX ]?)(\])/g,(m,a,s,c)=>cnt++===i?a+(cb.checked?'x':' ')+c:m);
+      markMod();
+    });
+  });
+}
+
+function E(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── FORM ENGINE ─────────────────────────────────────────────
+function parseFM(src){
+  const fm={};
+  if(!src.startsWith('---')) return {fm, body:src};
+  const end=src.indexOf('\n---',3);
+  if(end<0) return {fm, body:src};
+  src.slice(3,end).trim().split('\n').forEach(l=>{
+    const c=l.indexOf(':');
+    if(c>0) fm[l.slice(0,c).trim()]=l.slice(c+1).trim();
+  });
+  return {fm, body:src.slice(end+4).trim()};
+}
+
+function buildFF(type,name,extra,val){
+  const id='ff-'+name.replace(/\W+/g,'-');
+  switch(type){
+    case 'text':{
+      const ph=extra[0]||'', w=extra[1]||'220';
+      return '<input type="text" class="ff-in" id="'+id+'" name="'+name+'" value="'+E(val)+'" placeholder="'+E(ph)+'" style="min-width:'+w+'px" oninput="ffD()">';
+    }
+    case 'textarea':{
+      const rows=parseInt(extra[0])||4;
+      return '<textarea class="ff-ta" id="'+id+'" name="'+name+'" rows="'+rows+'" oninput="ffD()">'+E(val)+'</textarea>';
+    }
+    case 'date':
+      return '<input type="date" class="ff-in" id="'+id+'" name="'+name+'" value="'+E(val)+'" onchange="ffD()">';
+    case 'number':{
+      const mn=extra[0]||'',mx=extra[1]||'',st=extra[2]||'1';
+      return '<input type="number" class="ff-in" id="'+id+'" name="'+name+'" value="'+E(val)+'" min="'+mn+'" max="'+mx+'" step="'+st+'" oninput="ffD()">';
+    }
+    case 'select':{
+      const opts=(extra[0]||'').split(',').map(o=>o.trim()).filter(Boolean);
+      const os=opts.map(o=>'<option value="'+E(o)+'"'+(o===val?' selected':'')+'>'+E(o)+'</option>').join('');
+      return '<select class="ff-sel" id="'+id+'" name="'+name+'" onchange="ffD()">'+os+'</select>';
+    }
+    case 'multiselect':{
+      const opts2=(extra[0]||'').split(',').map(o=>o.trim()).filter(Boolean);
+      const vals2=val?val.split(',').map(v=>v.trim()):[];
+      const os2=opts2.map(o=>'<option value="'+E(o)+'"'+(vals2.includes(o)?' selected':'')+'>'+E(o)+'</option>').join('');
+      return '<select class="ff-sel" id="'+id+'" name="'+name+'" multiple size="'+Math.min(opts2.length,5)+'" onchange="ffD()">'+os2+'</select>';
+    }
+    case 'radio':{
+      const opts3=(extra[0]||'').split('|').map(o=>o.trim()).filter(Boolean);
+      const rds=opts3.map(o=>'<label class="ff-ro"><input type="radio" name="'+name+'" value="'+E(o)+'"'+(o===val?' checked':'')+' onchange="ffD()"> '+E(o)+'</label>').join('');
+      return '<span class="ff-rg">'+rds+'</span>';
+    }
+    case 'checkbox':{
+      const lbl=extra[0]||name;
+      const chk=(val==='true'||val==='ja'||val==='yes'||val==='1')?' checked':'';
+      return '<label class="ff-cw"><input type="checkbox" class="ff-cb" id="'+id+'" name="'+name+'"'+chk+' onchange="ffD()"> '+E(lbl)+'</label>';
+    }
+    case 'range':{
+      const mn2=extra[0]||'0',mx2=extra[1]||'100',st2=extra[2]||'1';
+      const cur=val||mn2;
+      return '<span class="ff-rw"><input type="range" class="ff-rng" id="'+id+'" name="'+name+'" value="'+E(cur)+'" min="'+mn2+'" max="'+mx2+'" step="'+st2+'" oninput="ffD();document.getElementById(\''+id+'-v\').textContent=this.value"><span class="ff-rv" id="'+id+'-v">'+E(cur)+'</span></span>';
+    }
+    case 'divider':
+      return '<hr style="border:none;border-top:1.5px dashed #d0c4a0;margin:.6em 0">';
+    case 'note':
+      return '<span style="font-family:system-ui,sans-serif;font-size:12px;color:#9a8050;font-style:italic;background:#f8f3e8;border-radius:3px;padding:2px 8px">'+E(extra.join(':'))+'</span>';
+    default:
+      return '<span style="color:#c00;font-size:11px;font-family:monospace">{{'+type+':'+name+'}}</span>';
+  }
+}
+
+function renderForm(){
+  const {fm,body}=parseFM(ed().value);
+  const fmRows=Object.entries(fm).map(([k,v])=>'<span class="fm-k">'+E(k)+':</span> <span class="fm-v">'+E(v)+'</span>');
+  const fmHtml=fmRows.length?'<div class="fm-box"><div class="fm-lbl">Frontmatter</div>'+fmRows.join('<br>')+'</div>':'';
+  const hasFF=/\{\{[^}]+\}\}/.test(body);
+  const ico1='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="4" rx="1"/><rect x="3" y="12" width="11" height="4" rx="1"/><rect x="16" y="12" width="5" height="4" rx="1"/></svg>';
+  const ico2='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+  const banner=hasFF
+    ?'<div class="ff-banner">'+ico1+'<span><strong>Formular-Modus</strong> &mdash; Felder ausf&uuml;llen und Speichern klicken.</span></div>'
+    :'<div class="ff-banner" style="background:#f8f3ea;color:#9a7040">'+ico2+'<span>Keine Formularfelder. Nutze <strong>{{text:Feldname}}</strong> im Text. <a href="#" onclick="showM(\'m-cheat\');filterCheat(\'formular\');return false">Syntax ansehen</a></span></div>';
+  const processed=body.replace(/\{\{([^}]+)\}\}/g,function(match,inner){
+    const parts=inner.split(':');
+    const type=parts[0].trim().toLowerCase();
+    const name=(parts[1]||'').trim()||('f'+Math.random().toString(36).slice(2,5));
+    const extra=parts.slice(2).map(function(p){return p.trim();});
+    const val=fm[name]!==undefined?fm[name]:'';
+    if(BTN_FF.has(type)){
+      const isR=type==='reset';
+      return '<button class="ff-btn'+(isR?' rst':'')+'" onclick="'+(isR?'resetFF()':'saveFF()')+'">'+E(name)+'</button>';
+    }
+    const html=buildFF(type,name,extra,val);
+    return BLOCK_FF.has(type)?html:'<span class="ff-il">'+html+'</span>';
+  });
+  const tmp=document.createElement('div');
+  tmp.innerHTML=marked.parse(processed);
+  tmp.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
+  addHeadingIds(tmp);
+  $('form-content').innerHTML=banner+fmHtml+tmp.innerHTML;
+}
+
+function ffD(){
+  const el=$('st-save');
+  el.className='si warn';
+  el.innerHTML='<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> Formular ge&auml;ndert';
+}
+
+function saveFF(){
+  const fc=$('form-content'), vals={};
+  fc.querySelectorAll('input,select,textarea').forEach(el=>{
+    if(!el.name) return;
+    if(el.type==='radio'&&!el.checked) return;
+    if(el.type==='checkbox'){vals[el.name]=el.checked?'true':'false';return;}
+    if(el.tagName==='SELECT'&&el.multiple){
+      vals[el.name]=Array.from(el.selectedOptions).map(o=>o.value).join(', ');
+    } else vals[el.name]=el.value;
+  });
+  if(!Object.keys(vals).length){toast('Keine Felder gefunden');return;}
+  let src=ed().value;
+  if(src.startsWith('---')){
+    const end=src.indexOf('\n---',3);
+    if(end>0){
+      let fm=src.slice(3,end), rest=src.slice(end);
+      Object.entries(vals).forEach(([k,v])=>{fm=setFMf(fm,k,v);});
+      src='---'+fm+rest;
+    } else src=mkFMbl(vals)+src;
+  } else src=mkFMbl(vals)+src;
+  ed().value=src; markMod(); renderForm();
+  toast('\u2713 Formularwerte gespeichert');
+}
+
+function resetFF(){renderForm();toast('Formular zur\xFCckgesetzt');}
+
+function mkFMbl(vals){
+  return '---\n'+Object.entries(vals).map(([k,v])=>k+': '+v).join('\n')+'\n---\n\n';
+}
+
+// ── FILE SYSTEM ─────────────────────────────────────────────
+async function openDir(){
+  if(!S.fsaOk){toast('Ben\xF6tigt Chrome oder Edge');return;}
+  try{
+    const dh=await showDirectoryPicker({mode:'readwrite'});
+    S.dirHandle=dh; S.files=[]; S.cur=-1;
+    $('dir-info').textContent='\uD83D\uDCC1 '+dh.name;
+    const found=[];
+    for await(const [name,h] of dh.entries()){
+      if(h.kind==='file'&&/\.(md|markdown)$/i.test(name)) found.push({name,h});
+    }
+    found.sort((a,b)=>a.name.localeCompare(b.name));
+    for(const {name,h} of found){
+      const f=await h.getFile(), content=await f.text();
+      S.files.push({name,content,handle:h,modified:false,original:content});
+    }
+    renderList(); toast(S.files.length+' Datei(en) geladen');
+    if(S.files.length) openFile(0);
+  }catch(e){if(e.name!=='AbortError') toast('Fehler: '+e.message);}
+}
+
+async function openFiles(){
+  if(S.fsaOk){
+    try{
+      const handles=await showOpenFilePicker({multiple:true,types:[{description:'Markdown',accept:{'text/markdown':['.md','.markdown']}}]});
+      for(const h of handles){const f=await h.getFile(),content=await f.text(); upsert({name:f.name,content,handle:h,modified:false,original:content});}
+      renderList(); if(S.cur<0&&S.files.length) openFile(0); return;
+    }catch(e){if(e.name!=='AbortError'){}}
+  }
+  const inp=document.createElement('input');
+  inp.type='file'; inp.multiple=true; inp.accept='.md,.markdown';
+  inp.onchange=async()=>{
+    for(const f of inp.files){const content=await f.text(); upsert({name:f.name,content,handle:null,modified:false,original:content});}
+    renderList(); if(S.cur<0&&S.files.length) openFile(0);
+  };
+  inp.click();
+}
+
+function upsert(obj){
+  const i=S.files.findIndex(f=>f.name===obj.name);
+  if(i>=0){S.files[i]=obj; if(S.cur===i){ed().value=obj.content;renderPreview();}}
+  else S.files.push(obj);
+}
+
+function newFile(){
+  const name='neu-'+new Date().toISOString().slice(0,10)+'.md';
+  const content='---\ntitle: Neues Dokument\ndate: '+dateFmt('YYYY-MM-DD')+'\nversion: 1.0\nauthor: \n---\n\n# Titel\n\nInhalt hier...\n';
+  S.files.push({name,content,handle:null,modified:true,original:''});
+  renderList(); openFile(S.files.length-1); toast('Neue Datei erstellt');
+}
+
+function openFile(idx){
+  if(S.cur>=0) S.files[S.cur].content=ed().value;
+  S.cur=idx;
+  const f=S.files[idx];
+  ed().value=f.content;
+  $('fname').textContent=f.name;
+  renderPreview(); updateStats(); renderList(); showWork();
+}
+
+// ── SAVE ────────────────────────────────────────────────────
+async function save(silent){
+  if(S.cur<0) return;
+  const f=S.files[S.cur]; f.content=ed().value;
+  if(f.handle&&S.fsaOk){
+    try{
+      const w=await f.handle.createWritable();
+      await w.write(f.content); await w.close();
+      f.modified=false; f.original=f.content;
+      renderList(); setSaved('Gespeichert','ok');
+      if(!silent) toast('\u2713 Gespeichert');
+    }catch(e){toast('Fehler: '+e.message);}
+  } else {
+    dl(f.content,f.name,'text/markdown');
+    f.modified=false; renderList();
+    if(!silent) toast('\u2193 Als Download gespeichert');
+  }
+}
+
+function openSaveAsDialog(){
+  if(S.cur<0) return;
+  const base=S.files[S.cur].name.replace(/\.md$/i,'');
+  const vm=base.match(/_v(\d+(?:\.\d+)?)$/);
+  let next;
+  if(vm){const pts=vm[1].split('.'); pts[pts.length-1]=String(parseInt(pts[pts.length-1])+1); next=base.replace(/_v[\d.]+$/,'_v'+pts.join('.'));}
+  else next=base+'_v2';
+  $('sa-name').value=next+'.md'; showM('m-saveas');
+}
+
+async function doSaveAs(){
+  let name=$('sa-name').value.trim(); if(!name) return;
+  if(!/\.md$/i.test(name)) name+='.md';
+  const content=ed().value; hideM('m-saveas');
+  if(S.fsaOk&&S.dirHandle){
+    try{
+      const h=await S.dirHandle.getFileHandle(name,{create:true});
+      const w=await h.createWritable(); await w.write(content); await w.close();
+      S.files.push({name,content,handle:h,modified:false,original:content});
+      renderList(); openFile(S.files.length-1); toast('\u2713 Gespeichert als "'+name+'"'); return;
+    }catch(e){toast('Fehler: '+e.message);return;}
+  }
+  dl(content,name,'text/markdown');
+  S.files.push({name,content,handle:null,modified:false,original:content});
+  renderList(); openFile(S.files.length-1); toast('\u2193 Export: "'+name+'"');
+}
+
+function openRenameDialog(){
+  if(S.cur<0) return;
+  $('r-name').value=S.files[S.cur].name; showM('m-rename'); $('r-name').select();
+}
+
+async function doRename(){
+  let name=$('r-name').value.trim(); if(!name) return;
+  if(!/\.md$/i.test(name)) name+='.md';
+  const f=S.files[S.cur], old=f.name; hideM('m-rename');
+  if(f.handle&&S.dirHandle&&S.fsaOk){
+    try{
+      const content=ed().value;
+      const nh=await S.dirHandle.getFileHandle(name,{create:true});
+      const w=await nh.createWritable(); await w.write(content); await w.close();
+      try{await S.dirHandle.removeEntry(old);}catch{}
+      f.name=name; f.handle=nh; f.content=content;
+    }catch(e){toast('Fehler: '+e.message);return;}
+  } else f.name=name;
+  $('fname').textContent=name; renderList(); toast('Umbenannt \u2192 "'+name+'"');
+}
+
+function dl(content,name,type){
+  const b=new Blob([content],{type});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+
+// ── DATE / VERSION ───────────────────────────────────────────
+function dateFmt(fmt){
+  const d=new Date();
+  const Y=d.getFullYear(), M=String(d.getMonth()+1).padStart(2,'0');
+  const D=String(d.getDate()).padStart(2,'0');
+  const h=String(d.getHours()).padStart(2,'0'), m=String(d.getMinutes()).padStart(2,'0');
+  return fmt.replace('YYYY',Y).replace('MM',M).replace('DD',D).replace('HH',h).replace('mm',m);
+}
+
+function updDPrev(){$('d-prev').textContent=dateFmt($('d-fmt').value||'YYYY-MM-DD');}
+
+function setFMf(fm,key,val){
+  const rx=new RegExp('^('+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+':\\s*)(.*)', 'm');
+  return rx.test(fm)?fm.replace(rx,'$1'+val):fm.trimEnd()+'\n'+key+': '+val+'\n';
+}
+
+function doDateInsert(){
+  const df=$('d-field').value.trim()||'date';
+  const fmt=$('d-fmt').value.trim()||'YYYY-MM-DD';
+  const vf=$('d-vf').value.trim(), vv=$('d-vv').value.trim();
+  const ds=dateFmt(fmt);
+  let src=ed().value;
+  if(src.startsWith('---')){
+    const end=src.indexOf('\n---',3);
+    if(end>0){
+      let fm=src.slice(3,end), rest=src.slice(end);
+      fm=setFMf(fm,df,ds);
+      if(vf){
+        const rx=new RegExp('^'+vf.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+':\\s*(.*)$','m');
+        const m=fm.match(rx); let nv=vv;
+        if(!nv&&m){const pts=m[1].trim().split('.'); const last=parseInt(pts[pts.length-1]); if(!isNaN(last)){pts[pts.length-1]=String(last+1);nv=pts.join('.');}else nv='1.1';}
+        else if(!nv) nv='1.0';
+        fm=setFMf(fm,vf,nv);
+      }
+      src='---'+fm+rest;
+    } else src=mkDFM(df,ds,vf,vv)+src;
+  } else src=mkDFM(df,ds,vf,vv)+src;
+  ed().value=src; markMod(); renderPreview(); hideM('m-date');
+  toast('\u2713 '+df+': '+ds);
+}
+
+function mkDFM(df,ds,vf,vv){
+  const l=['---',df+': '+ds]; if(vf) l.push(vf+': '+(vv||'1.0')); l.push('---',''); return l.join('\n')+'\n';
+}
+
+// ── VIEW & LAYOUT ────────────────────────────────────────────
+function setView(mode){
+  S.view=mode;
+  ['tb-split','tb-edit','tb-view','tb-form'].forEach(id=>$(id).classList.remove('on'));
+  if(mode==='split') $('tb-split').classList.add('on');
+  else if(mode==='editor') $('tb-edit').classList.add('on');
+  else if(mode==='preview') $('tb-view').classList.add('on');
+  else if(mode==='form') $('tb-form').classList.add('on');
+  if(S.cur>=0) showWork();
+  if(mode==='form') renderForm();
+}
+
+function showWork(){
+  $('empty').style.display='none';
+  ['ed-pane','divider','prev-pane','form-pane'].forEach(id=>$(id).style.display='none');
+  if(S.view==='split'){
+    $('ed-pane').style.display='flex'; $('ed-pane').style.flex='0 0 '+(S.ratio*100)+'%';
+    $('divider').style.display='flex';
+    $('prev-pane').style.display='flex'; $('prev-pane').style.flex='1';
+  } else if(S.view==='editor'){
+    $('ed-pane').style.display='flex'; $('ed-pane').style.flex='1';
+  } else if(S.view==='preview'){
+    $('prev-pane').style.display='flex'; $('prev-pane').style.flex='1';
+  } else if(S.view==='form'){
+    $('form-pane').style.display='flex'; $('form-pane').style.flex='1';
+  }
+}
+
+// ── FILE LIST ────────────────────────────────────────────────
+function renderList(){
+  const list=$('file-list');
+  if(!S.files.length){list.innerHTML='<div style="padding:16px 12px;font-size:11px;color:#333;text-align:center;line-height:1.6">Keine Dateien geladen</div>';return;}
+  list.innerHTML='';
+  S.files.forEach((f,i)=>{
+    const d=document.createElement('div');
+    d.className='fi'+(i===S.cur?' active':'')+(f.modified?' mod':'');
+    d.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="fi-name" title="'+f.name+'">'+f.name+'</span><span class="fi-dot"></span>';
+    d.onclick=()=>{if(i!==S.cur) openFile(i);};
+    list.appendChild(d);
+  });
+}
+
+// ── STATUS ───────────────────────────────────────────────────
+let _st;
+function updateStats(){
+  clearTimeout(_st);
+  _st=setTimeout(()=>{
+    const t=ed().value;
+    const w=t.trim()?t.trim().split(/\s+/).length:0;
+    $('st-w').textContent=w+' W\xF6rter';
+    $('st-c').textContent=t.length+' Zeichen';
+    $('st-l').textContent=t.split('\n').length+' Zeilen';
+  },100);
+}
+
+function updateCursor(){
+  const e=ed(), pos=e.selectionStart;
+  const lines=e.value.substring(0,pos).split('\n');
+  $('st-p').textContent='Z '+lines.length+', Sp '+(lines[lines.length-1].length+1);
+}
+
+function setSaved(msg,cls){
+  const el=$('st-save');
+  el.className='si'+(cls?' '+cls:'');
+  el.innerHTML='<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> '+msg;
+}
+
+function markMod(){
+  if(S.cur<0) return;
+  S.files[S.cur].modified=true; S.files[S.cur].content=ed().value;
+  renderList(); setSaved('Ungespeichert','warn');
+}
+
+// ── SPLIT DRAG ───────────────────────────────────────────────
+function initDrag(){
+  const dv=$('divider'), wa=$('work');
+  dv.addEventListener('mousedown',e=>{
+    S.dragging=true; dv.classList.add('drag');
+    document.body.style.cssText='cursor:col-resize;user-select:none'; e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!S.dragging) return;
+    const r=wa.getBoundingClientRect();
+    let ratio=(e.clientX-r.left)/r.width;
+    ratio=Math.max(0.18,Math.min(0.82,ratio));
+    S.ratio=ratio;
+    $('ed-pane').style.flex='0 0 '+(ratio*100)+'%';
+    $('prev-pane').style.flex='1';
+  });
+  document.addEventListener('mouseup',()=>{
+    if(S.dragging){S.dragging=false;$('divider').classList.remove('drag');document.body.style.cssText='';}
+  });
+}
+
+// ── SCROLL SYNC ──────────────────────────────────────────────
+function initScrollSync(){
+  const textarea=ed(), pp=$('prev-pane');
+  textarea.addEventListener('scroll',()=>{
+    if(S.syncLock||S.view!=='split') return;
+    S.syncLock=true;
+    const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
+    pp.scrollTop=r*Math.max(0,pp.scrollHeight-pp.clientHeight);
+    requestAnimationFrame(()=>{S.syncLock=false;});
+  });
+  pp.addEventListener('scroll',()=>{
+    if(S.syncLock||S.view!=='split') return;
+    S.syncLock=true;
+    const r=pp.scrollTop/Math.max(1,pp.scrollHeight-pp.clientHeight);
+    textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
+    requestAnimationFrame(()=>{S.syncLock=false;});
+  });
+}
+
+// ── AUTO-SAVE ────────────────────────────────────────────────
+function startAutoSave(){
+  clearInterval(S.asTimer); S.asCountdown=AUTO_SAVE_SEC; updASLbl();
+  S.asTimer=setInterval(async()=>{
+    S.asCountdown--; updASLbl();
+    if(S.asCountdown<=0){
+      S.asCountdown=AUTO_SAVE_SEC;
+      if(S.cur>=0&&S.files[S.cur].modified){await save(true); toast('\u23F1 Auto-gespeichert');}
+    }
+  },1000);
+}
+
+function updASLbl(){
+  const el=$('st-as');
+  const m=Math.floor(S.asCountdown/60), s=S.asCountdown%60;
+  el.textContent='\u23F1 '+m+':'+String(s).padStart(2,'0');
+  el.style.color=S.asCountdown<=15?'var(--warn)':'#383830';
+  el.title='Auto-Save in '+S.asCountdown+'s';
+}
+
+// ── SEARCH ───────────────────────────────────────────────────
+function toggleSearch(){
+  const b=$('search-bar');
+  if(!b.classList.contains('vis')){b.classList.add('vis');$('s-in').focus();$('s-in').select();doSearch();}
+  else closeSearch();
+}
+
+function closeSearch(){
+  $('search-bar').classList.remove('vis'); clearHL();
+  S.matches=[]; $('s-cnt').textContent='';
+}
+
+function doSearch(){
+  clearHL();
+  const q=$('s-in').value; if(!q){$('s-cnt').textContent='';return;}
+  const rx=new RegExp(rxE(q),'gi');
+  S.matches=[...ed().value.matchAll(rx)].map(m=>m.index);
+  S.matchIdx=0;
+  $('s-cnt').textContent=S.matches.length?'1 / '+S.matches.length:'Keine Treffer';
+  if(S.matches.length) jumpTo(0);
+  hlPV(q);
+}
+
+function jumpTo(idx){
+  if(!S.matches.length) return;
+  S.matchIdx=((idx%S.matches.length)+S.matches.length)%S.matches.length;
+  $('s-cnt').textContent=(S.matchIdx+1)+' / '+S.matches.length;
+  const pos=S.matches[S.matchIdx], e=ed();
+  e.focus(); e.setSelectionRange(pos,pos+$('s-in').value.length);
+  const lh=parseFloat(getComputedStyle(e).lineHeight)||23;
+  e.scrollTop=(e.value.substring(0,pos).split('\n').length-1)*lh-e.clientHeight/2;
+}
+
+function hlPV(q){
+  const rx=new RegExp('('+rxE(q)+')','gi');
+  const walker=document.createTreeWalker(pv(),NodeFilter.SHOW_TEXT);
+  const nodes=[]; let n;
+  while(n=walker.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{
+    if(!rx.test(node.textContent)){rx.lastIndex=0;return;}
+    rx.lastIndex=0;
+    const sp=document.createElement('span');
+    sp.innerHTML=node.textContent.replace(rx,'<mark class="hl">$1</mark>');
+    node.parentNode.replaceChild(sp,node);
+  });
+}
+
+function clearHL(){pv().querySelectorAll('.hl').forEach(m=>m.replaceWith(m.textContent));pv().normalize();}
+function rxE(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+// ── PDF ──────────────────────────────────────────────────────
+function exportPDF(){if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;} window.print();}
+
+// ── MODALS ───────────────────────────────────────────────────
+function showM(id){$(id).classList.add('vis');}
+function hideM(id){$(id).classList.remove('vis');}
+document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('vis');}));
+
+// ── CHEAT SHEET FILTER ───────────────────────────────────────
+function filterCheat(q){
+  const term=q.trim().toLowerCase();
+  document.querySelectorAll('#cs-body .csg').forEach(grp=>{
+    let vis=false;
+    grp.querySelectorAll('.csr').forEach(row=>{
+      if(!term){row.classList.remove('hide');vis=true;return;}
+      const hit=(row.dataset.t||'').toLowerCase().includes(term)
+        ||(row.querySelector('.cs-sy')?row.querySelector('.cs-sy').textContent.toLowerCase().includes(term):false)
+        ||(row.querySelector('.cs-ou')?row.querySelector('.cs-ou').textContent.toLowerCase().includes(term):false)
+        ||(grp.dataset.g||'').toLowerCase().includes(term);
+      row.classList.toggle('hide',!hit);
+      if(hit) vis=true;
+    });
+    grp.classList.toggle('hide',!vis);
+  });
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+let _tt;
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── DRAG & DROP (works even when editor is visible) ──────────
+function initDragDrop(){
+  // Prevent browser navigation on accidental drop anywhere
+  document.addEventListener('dragover',e=>e.preventDefault());
+  document.addEventListener('drop',e=>e.preventDefault());
+
+  const work=$('work');
+  work.addEventListener('dragenter',e=>{e.preventDefault();$('empty').classList.add('dov');});
+  work.addEventListener('dragover', e=>{e.preventDefault();$('empty').classList.add('dov');});
+  work.addEventListener('dragleave',e=>{
+    if(!work.contains(e.relatedTarget)) $('empty').classList.remove('dov');
+  });
+  work.addEventListener('drop', handleDrop);
+
+  // Also allow drop on sidebar / toolbar area
+  document.addEventListener('drop', handleDrop, {capture:true});
+}
+
+let _dropHandled=false;
+async function handleDrop(e){
+  // Avoid double-handling when both listeners fire
+  if(_dropHandled) return;
+  _dropHandled=true; requestAnimationFrame(()=>{_dropHandled=false;});
+
+  e.preventDefault(); e.stopPropagation();
+  $('empty').classList.remove('dov');
+  const files=[...e.dataTransfer.files].filter(f=>/\.(md|markdown)$/i.test(f.name));
+  if(!files.length){toast('Keine .md Dateien');return;}
+  for(const f of files){const content=await f.text(); upsert({name:f.name,content,handle:null,modified:false,original:content});}
+  renderList();
+  if(S.cur<0&&S.files.length) openFile(0);
+  toast(files.length+' Datei(en) geladen');
+}
+
+// ── EVENT WIRING ─────────────────────────────────────────────
+$('btn-dir').onclick   = openDir;
+$('btn-files').onclick = openFiles;
+$('btn-new').onclick   = newFile;
+$('tb-save').onclick   = ()=>save(false);
+$('tb-saveas').onclick = openSaveAsDialog;
+$('tb-rename').onclick = openRenameDialog;
+$('tb-date').onclick   = ()=>{if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;} updDPrev(); showM('m-date');};
+$('tb-split').onclick  = ()=>setView('split');
+$('tb-edit').onclick   = ()=>setView('editor');
+$('tb-view').onclick   = ()=>setView('preview');
+$('tb-form').onclick   = ()=>setView('form');
+$('tb-search').onclick = toggleSearch;
+$('tb-cheat').onclick  = ()=>showM('m-cheat');
+$('tb-pdf').onclick    = exportPDF;
+
+ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form') renderForm();});
+ed().addEventListener('keyup',updateCursor);
+ed().addEventListener('click',updateCursor);
+
+ed().addEventListener('keydown',e=>{
+  if(e.key!=='Tab') return;
+  e.preventDefault();
+  const s=e.target.selectionStart, en=e.target.selectionEnd;
+  if(s===en){
+    e.target.value=e.target.value.slice(0,s)+'  '+e.target.value.slice(en);
+    e.target.selectionStart=e.target.selectionEnd=s+2;
+  } else {
+    const lines=e.target.value.split('\n'); let i=0,ss=s,se=en;
+    for(let li=0;li<lines.length;li++){
+      const ls=i,le=i+lines[li].length;
+      if(le>=s&&ls<=en){lines[li]='  '+lines[li];se+=2;if(ls<=s)ss+=2;}
+      i=le+1;
+    }
+    e.target.value=lines.join('\n');
+    e.target.selectionStart=ss; e.target.selectionEnd=se;
+  }
+  markMod();
+});
+
+$('s-in').addEventListener('input',doSearch);
+$('s-in').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();jumpTo(S.matchIdx+(e.shiftKey?-1:1));}
+  if(e.key==='Escape') closeSearch();
+});
+$('s-prev').onclick=()=>jumpTo(S.matchIdx-1);
+$('s-next').onclick=()=>jumpTo(S.matchIdx+1);
+$('s-x').onclick=closeSearch;
+
+$('r-name').addEventListener('keydown',e=>{if(e.key==='Enter') doRename();});
+$('sa-name').addEventListener('keydown',e=>{if(e.key==='Enter') doSaveAs();});
+$('cs-fi').addEventListener('input',e=>filterCheat(e.target.value));
+
+document.addEventListener('keydown',e=>{
+  const ctrl=e.ctrlKey||e.metaKey;
+  if(ctrl&&e.key==='s'){e.preventDefault();save(false);}
+  if(ctrl&&e.key==='f'){e.preventDefault();toggleSearch();}
+  if(ctrl&&e.shiftKey&&e.key==='p'){e.preventDefault();exportPDF();}
+  if(e.key==='Escape'){closeSearch();['m-rename','m-saveas','m-date','m-cheat'].forEach(hideM);}
+});
+
+if(!S.fsaOk){
+  $('fsa-warn').style.display='block';
+  $('btn-dir').style.opacity='0.45';
+  $('btn-dir').onclick=()=>toast('Ordner-Zugriff ben\xF6tigt Chrome oder Edge');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+initDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
+
+// Internal anchor navigation in preview and form pane
+function initPreviewLinks(){
+  function handleAnchorClick(pane, e){
+    const a=e.target.closest('a');
+    if(!a) return;
+    const href=a.getAttribute('href');
+    if(!href||!href.startsWith('#')) return;
+    const id=href.slice(1);
+    // First try the preview div, then form-content
+    const target=pane.querySelector('#'+CSS.escape(id));
+    if(target){
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }
+  $('prev-pane').addEventListener('click', e=>handleAnchorClick($('preview'), e));
+  $('form-pane').addEventListener('click', e=>handleAnchorClick($('form-content'), e));
+}
+initPreviewLinks();
+</script>
+</body>
+</html>
