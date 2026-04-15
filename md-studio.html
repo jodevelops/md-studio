@@ -353,8 +353,17 @@ function parseRender(src){
       fmHtml='<div class="fm-box"><div class="fm-lbl">Frontmatter</div>'+rows.join('<br>')+'</div>';
     }
   }
+  // Mask {{...}} macros before Markdown parsing so that | inside macros
+  // (e.g. {{radio:name:A|B|C}}) is not treated as a GFM table column separator
+  const macroStore=[];
+  const maskUid='ZMASK'+Math.random().toString(36).slice(2,8).toUpperCase();
+  src=src.replace(/\{\{[^}]+\}\}/g,function(m){return maskUid+(macroStore.push(m)-1)+maskUid;});
   const tmp=document.createElement('div');
   tmp.innerHTML=marked.parse(src);
+  if(macroStore.length){
+    const re=new RegExp(maskUid+'(\\d+)'+maskUid,'g');
+    tmp.innerHTML=tmp.innerHTML.replace(re,function(_,i){return E(macroStore[+i]);});
+  }
   tmp.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
   addHeadingIds(tmp);
   return {fmHtml, bodyHtml:tmp.innerHTML};
@@ -479,21 +488,35 @@ function renderForm(){
   const banner=hasFF
     ?'<div class="ff-banner">'+ico1+'<span><strong>Formular-Modus</strong> &mdash; Felder ausf&uuml;llen und Speichern klicken.</span></div>'
     :'<div class="ff-banner" style="background:#f8f3ea;color:#9a7040">'+ico2+'<span>Keine Formularfelder. Nutze <strong>{{text:Feldname}}</strong> im Text. <a href="#" onclick="showM(\'m-cheat\');filterCheat(\'formular\');return false">Syntax ansehen</a></span></div>';
-  const processed=body.replace(/\{\{([^}]+)\}\}/g,function(match,inner){
+  // Mask macros with safe placeholders before Markdown parsing so | inside
+  // macros (e.g. {{radio:name:A|B|C}}) doesn't break GFM table column detection
+  const macroHtmlMap={};
+  const fmMaskUid='ZMASK'+Math.random().toString(36).slice(2,8).toUpperCase();
+  let fmMaskIdx=0;
+  const masked=body.replace(/\{\{([^}]+)\}\}/g,function(match,inner){
+    const ph=fmMaskUid+(fmMaskIdx++)+fmMaskUid;
     const parts=inner.split(':');
     const type=parts[0].trim().toLowerCase();
     const name=(parts[1]||'').trim()||('f'+Math.random().toString(36).slice(2,5));
     const extra=parts.slice(2).map(function(p){return p.trim();});
     const val=fm[name]!==undefined?fm[name]:'';
+    let html;
     if(BTN_FF.has(type)){
       const isR=type==='reset';
-      return '<button class="ff-btn'+(isR?' rst':'')+'" onclick="'+(isR?'resetFF()':'saveFF()')+'">'+E(name)+'</button>';
+      html='<button class="ff-btn'+(isR?' rst':'')+'" onclick="'+(isR?'resetFF()':'saveFF()')+'">'+E(name)+'</button>';
+    } else {
+      const raw=buildFF(type,name,extra,val);
+      html=BLOCK_FF.has(type)?raw:'<span class="ff-il">'+raw+'</span>';
     }
-    const html=buildFF(type,name,extra,val);
-    return BLOCK_FF.has(type)?html:'<span class="ff-il">'+html+'</span>';
+    macroHtmlMap[ph]=html;
+    return ph;
   });
   const tmp=document.createElement('div');
-  tmp.innerHTML=marked.parse(processed);
+  tmp.innerHTML=marked.parse(masked);
+  if(fmMaskIdx){
+    const re=new RegExp(fmMaskUid+'\\d+'+fmMaskUid,'g');
+    tmp.innerHTML=tmp.innerHTML.replace(re,function(p){return macroHtmlMap[p]||p;});
+  }
   tmp.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
   addHeadingIds(tmp);
   $('form-content').innerHTML=banner+fmHtml+tmp.innerHTML;
