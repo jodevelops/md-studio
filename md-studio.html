@@ -173,6 +173,47 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .csr.hide,.csg.hide{display:none}
 #toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(8px);background:#1e1e1e;border:1px solid #2e2e2e;color:#eee;padding:7px 16px;border-radius:20px;font-size:11.5px;z-index:200;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ── FORMATTING BAR ── */
+#fmt-bar{height:32px;background:#111;border-bottom:1px solid var(--bd);display:none;align-items:center;padding:0 6px;gap:1px;flex-shrink:0;overflow-x:auto}
+#fmt-bar::-webkit-scrollbar{height:0}
+#fmt-bar.vis{display:flex}
+.fb{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;background:transparent;border:1px solid transparent;color:var(--tui);font-size:11.5px;cursor:pointer;border-radius:3px;transition:all .12s;flex-shrink:0;padding:0 5px;font-family:'Cascadia Code','Fira Code',monospace;line-height:1}
+.fb:hover{background:#1e1e1e;border-color:#2e2e2e;color:#fff}
+.fb.p{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
+.fb-sep{width:1px;height:16px;background:#2a2a2a;margin:0 3px;flex-shrink:0}
+/* ── TABLE EDITOR MODAL ── */
+#m-table .modal{min-width:min(680px,94vw);max-width:min(820px,97vw);max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
+.te-hd{padding:13px 18px 10px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.te-hd h3{font-size:13px;font-weight:600;color:#fff;margin:0;display:flex;align-items:center;gap:7px}
+.te-hd h3 svg{color:var(--acc)}
+.te-body{overflow:auto;padding:12px 16px;flex:1}
+.te-ctrl{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.te-btn{padding:4px 10px;font-size:11px;cursor:pointer;border-radius:3px;border:1px solid #2e2e2e;background:#1e1e1e;color:var(--tui);transition:all .12s;white-space:nowrap}
+.te-btn:hover{background:#2a2a2a;color:#fff}
+.te-btn.acc{background:rgba(200,134,10,.15);border-color:var(--acc);color:var(--acc)}
+#te-grid{overflow-x:auto;border:1px solid #2a2a2a;border-radius:4px}
+.te-tbl{border-collapse:collapse;width:100%}
+.te-tbl th,.te-tbl td{border:1px solid #222;padding:1px}
+.te-tbl thead th{background:#0d0d0d;padding:4px 6px}
+.te-cell{width:100%;background:#141414;border:none;color:#ddd8d0;font-family:'Cascadia Code','Fira Code',monospace;font-size:12.5px;padding:5px 8px;outline:none;min-width:100px;box-sizing:border-box}
+.te-cell:focus{background:#1a1e2a;color:#fff;box-shadow:inset 0 0 0 1px var(--acc)}
+.te-cell.hdr{color:var(--acc2);font-weight:600;background:#0f1218}
+.te-cell.hdr:focus{background:#1a1e2a}
+.te-asel{background:#141414;border:1px solid #2a2a2a;color:var(--tui);font-size:10px;padding:2px 4px;border-radius:2px;cursor:pointer;outline:none;width:100%}
+.te-asel:focus{border-color:var(--acc)}
+.te-xbtn{background:transparent;border:none;color:#333;cursor:pointer;font-size:11px;padding:2px 5px;border-radius:2px;line-height:1;display:block;width:100%;text-align:center}
+.te-xbtn:hover{background:#2a1010;color:#c44}
+.te-act{padding:9px 16px 13px;border-top:1px solid #2a2a2a;display:flex;gap:7px;justify-content:flex-end;flex-shrink:0}
+/* ── LINK BAR ── */
+#link-bar{position:fixed;background:#1c1c1c;border:1px solid #383838;border-radius:6px;padding:7px 10px;align-items:center;gap:6px;z-index:70;box-shadow:0 6px 24px rgba(0,0,0,.7);display:none;min-width:340px;flex-wrap:wrap}
+#link-bar.vis{display:flex}
+#link-bar label{font-size:10px;color:#555;flex-shrink:0}
+.l-in{flex:1;background:#111;border:1px solid #2a2a2a;border-radius:3px;color:#fff;font-size:12px;padding:4px 8px;outline:none;min-width:80px}
+.l-in:focus{border-color:var(--acc)}
+#l-ok{padding:4px 12px;font-size:11px;cursor:pointer;border-radius:3px;border:1px solid var(--acc);background:var(--acc);color:#000;font-weight:700}
+#l-ok:hover{background:var(--acc2)}
+#l-x2{background:transparent;border:none;color:#444;cursor:pointer;font-size:15px;line-height:1;padding:0 3px}
+#l-x2:hover{color:#fff}
 @media print{
   html,body{height:auto!important;overflow:visible!important;display:block!important}
   #sidebar,#toolbar,#status,#ed-pane,#divider,#search-bar,#form-pane,.ovl,#empty,#toast{display:none!important}
@@ -223,6 +264,28 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
     <button class="tb" id="tb-cheat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> MD Syntax</button>
     <div class="sp"></div>
     <button class="tb go" id="tb-pdf"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</button>
+  </div>
+  <div id="fmt-bar">
+    <button class="fb" id="fb-h1" title="H1 (Ctrl+Alt+1)" style="font-family:system-ui,sans-serif;font-weight:700">H1</button>
+    <button class="fb" id="fb-h2" title="H2 (Ctrl+Alt+2)" style="font-family:system-ui,sans-serif;font-weight:700">H2</button>
+    <button class="fb" id="fb-h3" title="H3 (Ctrl+Alt+3)" style="font-family:system-ui,sans-serif;font-weight:700">H3</button>
+    <div class="fb-sep"></div>
+    <button class="fb" id="fb-bold" title="Fett (Ctrl+B)" style="font-weight:700">B</button>
+    <button class="fb" id="fb-ital" title="Kursiv (Ctrl+I)" style="font-style:italic">I</button>
+    <button class="fb" id="fb-strike" title="Durchgestrichen" style="text-decoration:line-through">S</button>
+    <button class="fb" id="fb-code" title="Inline Code">&#96;c&#96;</button>
+    <button class="fb" id="fb-codebl" title="Codeblock" style="font-size:10px">&#96;&#96;&#96;</button>
+    <div class="fb-sep"></div>
+    <button class="fb" id="fb-ul" title="Aufz&#228;hlung (- )" style="font-family:system-ui">&#8226; &#8212;</button>
+    <button class="fb" id="fb-ol" title="Nummerierte Liste" style="font-family:system-ui">1.</button>
+    <button class="fb" id="fb-task" title="Aufgabenliste" style="font-family:system-ui">&#9744;</button>
+    <button class="fb" id="fb-quote" title="Blockzitat" style="font-family:system-ui">&ldquo;&gt;</button>
+    <button class="fb" id="fb-hr" title="Trennlinie" style="font-family:system-ui;letter-spacing:-1px">&#8212;&#8212;</button>
+    <div class="fb-sep"></div>
+    <button class="fb" id="fb-link" title="Link (Ctrl+K)" style="font-family:system-ui">[&#128279;]</button>
+    <button class="fb" id="fb-img" title="Bild" style="font-family:system-ui">&#128444;</button>
+    <div class="fb-sep"></div>
+    <button class="fb" id="fb-table" title="Tabellen-Editor" style="font-family:system-ui;padding:0 7px;font-size:10.5px">&#9707; Tabelle</button>
   </div>
   <div id="work">
     <div id="empty">
@@ -304,6 +367,36 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
       <div class="csg" data-g="formular felder form input text textarea select radio checkbox button formular-modus"><div class="csg-t"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="5" width="18" height="4" rx="1"/><rect x="3" y="12" width="11" height="4" rx="1"/><rect x="16" y="12" width="5" height="4" rx="1"/></svg> &#9322; Formular-Felder <span style="font-size:8.5px;font-weight:400;color:#555;text-transform:none;letter-spacing:0">(Formular-Modus)</span></div><div class="cs-ch"><span>Syntax</span><span>Ergebnis/Hinweis</span></div><div class="csr" data-t="formular text eingabe input feld"><div class="cs-sy">{{text:name}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Einzeiliges Textfeld; Wert in FM als <code>name:</code></div></div><div class="csr" data-t="formular text platzhalter breite"><div class="cs-sy">{{text:name:Platzhalter:280}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mit Platzhalter und Breite in px</div></div><div class="csr" data-t="formular textarea mehrzeilig text"><div class="cs-sy">{{textarea:notizen:5}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mehrzeiliges Feld, 5 Zeilen</div></div><div class="csr" data-t="formular datum date kalender"><div class="cs-sy">{{date:datum}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Datumsauswahl</div></div><div class="csr" data-t="formular zahl nummer number min max"><div class="cs-sy">{{number:menge:0:100}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Zahl mit Min/Max</div></div><div class="csr" data-t="formular select dropdown auswahl liste"><div class="cs-sy">{{select:status:offen,aktiv,fertig}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Dropdown (kommagetrennt)</div></div><div class="csr" data-t="formular multiselect mehrfach"><div class="cs-sy">{{multiselect:tags:A,B,C,D}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Mehrfachauswahl</div></div><div class="csr" data-t="formular radio gruppe auswahl"><div class="cs-sy">{{radio:typ:Typ A|Typ B|Typ C}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Radio-Gruppe (pipe-getrennt)</div></div><div class="csr" data-t="formular checkbox ja nein bool"><div class="cs-sy">{{checkbox:geprueft:Geprueft}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Checkbox; true/false</div></div><div class="csr" data-t="formular slider range bereich"><div class="cs-sy">{{range:prio:1:5:1}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Schieberegler Min:Max:Schritt</div></div><div class="csr" data-t="formular button speichern absenden"><div class="cs-sy">{{button:Speichern}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Speichert alle Felder ins FM</div></div><div class="csr" data-t="formular reset zuruecksetzen"><div class="cs-sy">{{reset:Reset}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Setzt Formular zurueck</div></div><div class="csr" data-t="formular trennlinie divider"><div class="cs-sy">{{divider}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Gestrichelte Trennlinie</div></div><div class="csr" data-t="formular hinweis note info"><div class="cs-sy">{{note:Hinweistext hier}}</div><div class="cs-ou" style="color:#888;font-size:10.5px">Kursiver Hinweistext</div></div></div>
     </div>
   </div>
+</div>
+<div class="ovl" id="m-table">
+  <div class="modal">
+    <div class="te-hd">
+      <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg> Tabellen-Editor</h3>
+      <button class="cs-x" onclick="hideM('m-table')">&#x2715;</button>
+    </div>
+    <div class="te-body">
+      <div class="te-ctrl">
+        <button class="te-btn" onclick="teAddRow()">+ Zeile</button>
+        <button class="te-btn" onclick="teAddCol()">+ Spalte</button>
+        <button class="te-btn" onclick="teDelRow()">&#8722; Zeile</button>
+        <button class="te-btn" onclick="teDelCol()">&#8722; Spalte</button>
+        <div class="fb-sep" style="height:14px;margin:0 4px"></div>
+        <button class="te-btn acc" onclick="teFromClip()">&#128203; Aus Zwischenablage (TSV/CSV)</button>
+      </div>
+      <div id="te-grid"></div>
+      <div style="margin-top:8px;font-size:10px;color:#444">Tab = n&#228;chste Zelle &nbsp;&#183;&nbsp; Shift+Tab = zur&#252;ck &nbsp;&#183;&nbsp; Enter = n&#228;chste Zeile &nbsp;&#183;&nbsp; Erste Zeile = Spalten&#252;berschriften</div>
+    </div>
+    <div class="te-act">
+      <button onclick="hideM('m-table')" style="padding:6px 14px;font-size:11.5px;cursor:pointer;border-radius:4px;border:1px solid #2e2e2e;background:#222;color:var(--tui)">Abbrechen</button>
+      <button onclick="teInsert()" style="padding:6px 14px;font-size:11.5px;cursor:pointer;border-radius:4px;border:1px solid var(--acc);background:var(--acc);color:#000;font-weight:700">In Editor einf&#252;gen</button>
+    </div>
+  </div>
+</div>
+<div id="link-bar">
+  <label>Text:</label><input type="text" class="l-in" id="l-text" placeholder="Linktext">
+  <label>URL:</label><input type="text" class="l-in" id="l-url" placeholder="https://">
+  <button id="l-ok" onclick="doInsertLink()">OK</button>
+  <button id="l-x2">&#x2715;</button>
 </div>
 <div id="toast"></div>
 <script>
@@ -763,6 +856,7 @@ function showWork(){
   } else if(S.view==='form'){
     $('form-pane').style.display='flex'; $('form-pane').style.flex='1';
   }
+  updateFmtBar();
 }
 
 // ── FILE LIST ────────────────────────────────────────────────
@@ -1010,19 +1104,76 @@ ed().addEventListener('click',updateCursor);
 ed().addEventListener('keydown',e=>{
   if(e.key!=='Tab') return;
   e.preventDefault();
-  const s=e.target.selectionStart, en=e.target.selectionEnd;
+  const ta=e.target, s=ta.selectionStart, en=ta.selectionEnd;
+  // ── Table cell navigation ──
   if(s===en){
-    e.target.value=e.target.value.slice(0,s)+'  '+e.target.value.slice(en);
-    e.target.selectionStart=e.target.selectionEnd=s+2;
+    const lS=ta.value.lastIndexOf('\n',s-1)+1;
+    const lE=ta.value.indexOf('\n',s);
+    const line=ta.value.slice(lS,lE<0?undefined:lE);
+    if(line.trimStart().startsWith('|')){
+      const rel=s-lS;
+      if(!e.shiftKey){
+        // next pipe in current line
+        const ni=line.indexOf('|',rel);
+        if(ni>=0&&ni<line.length-1){
+          const cS=lS+ni+1;
+          const ni2=line.indexOf('|',ni+1);
+          const cE=ni2>=0?lS+ni2:(lE<0?ta.value.length:lE);
+          let a=cS,b=cE;
+          while(a<b&&ta.value[a]===' ')a++;
+          while(b>a&&ta.value[b-1]===' ')b--;
+          ta.selectionStart=a;ta.selectionEnd=b;
+        } else {
+          // last cell on line → jump to first cell of next data row (skip separator)
+          const rowEnd=lE<0?ta.value.length:lE;
+          let next=rowEnd+1;
+          while(next<ta.value.length){
+            const nE=ta.value.indexOf('\n',next);
+            const nL=ta.value.slice(next,nE<0?undefined:nE);
+            if(!nL.trimStart().startsWith('|')) break;
+            if(!nL.includes('---')){
+              const fp=nL.indexOf('|');
+              const sp=nL.indexOf('|',fp+1);
+              const cS2=next+fp+1;
+              const cE2=sp>=0?next+sp:nE<0?ta.value.length:nE;
+              let a=cS2,b=cE2;
+              while(a<b&&ta.value[a]===' ')a++;
+              while(b>a&&ta.value[b-1]===' ')b--;
+              ta.selectionStart=a;ta.selectionEnd=b;
+              break;
+            }
+            next=(nE<0?ta.value.length:nE)+1;
+          }
+        }
+      } else {
+        // Shift+Tab: previous cell
+        const pi=line.lastIndexOf('|',rel-2);
+        if(pi>0){
+          const pi2=line.lastIndexOf('|',pi-1);
+          const cS=lS+(pi2>=0?pi2+1:0);
+          const cE=lS+pi;
+          let a=cS,b=cE;
+          while(a<b&&ta.value[a]===' ')a++;
+          while(b>a&&ta.value[b-1]===' ')b--;
+          ta.selectionStart=a;ta.selectionEnd=b;
+        }
+      }
+      return; // don't fall through to indent
+    }
+  }
+  // ── Default: indent 2 spaces ──
+  if(s===en){
+    ta.value=ta.value.slice(0,s)+'  '+ta.value.slice(en);
+    ta.selectionStart=ta.selectionEnd=s+2;
   } else {
-    const lines=e.target.value.split('\n'); let i=0,ss=s,se=en;
+    const lines=ta.value.split('\n'); let i=0,ss=s,se=en;
     for(let li=0;li<lines.length;li++){
       const ls=i,le=i+lines[li].length;
       if(le>=s&&ls<=en){lines[li]='  '+lines[li];se+=2;if(ls<=s)ss+=2;}
       i=le+1;
     }
-    e.target.value=lines.join('\n');
-    e.target.selectionStart=ss; e.target.selectionEnd=se;
+    ta.value=lines.join('\n');
+    ta.selectionStart=ss; ta.selectionEnd=se;
   }
   markMod();
 });
@@ -1045,7 +1196,10 @@ document.addEventListener('keydown',e=>{
   if(ctrl&&e.key==='s'){e.preventDefault();save(false);}
   if(ctrl&&e.key==='f'){e.preventDefault();toggleSearch();}
   if(ctrl&&e.shiftKey&&e.key==='p'){e.preventDefault();exportPDF();}
-  if(e.key==='Escape'){closeSearch();['m-rename','m-saveas','m-date','m-cheat'].forEach(hideM);}
+  if(ctrl&&e.key==='b'&&S.cur>=0){e.preventDefault();fmtWrap('**','**','Fetter Text');return;}
+  if(ctrl&&e.key==='i'&&!e.shiftKey&&S.cur>=0){e.preventDefault();fmtWrap('*','*','Kursiver Text');return;}
+  if(ctrl&&e.key==='k'&&S.cur>=0){e.preventDefault();openLinkBar();return;}
+  if(e.key==='Escape'){closeSearch();$('link-bar').classList.remove('vis');['m-rename','m-saveas','m-date','m-cheat','m-table'].forEach(hideM);}
 });
 
 if(!S.fsaOk){
@@ -1056,6 +1210,395 @@ if(!S.fsaOk){
 
 // ── INIT ─────────────────────────────────────────────────────
 initDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
+
+// ── FORMATTING BAR ──────────────────────────────────────────
+function updateFmtBar(){
+  const show=S.cur>=0&&(S.view==='split'||S.view==='editor');
+  $('fmt-bar').classList.toggle('vis',show);
+}
+
+function fmtWrap(before,after,placeholder){
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  const sel=ta.value.slice(s,en)||placeholder||'';
+  const ins=before+sel+after;
+  ta.value=ta.value.slice(0,s)+ins+ta.value.slice(en);
+  ta.selectionStart=s+before.length;
+  ta.selectionEnd=s+before.length+sel.length;
+  ta.focus();markMod();renderPreview();
+}
+
+function fmtLinePrefix(prefix){
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  const val=ta.value;
+  // find affected line range
+  const bStart=val.lastIndexOf('\n',s-1)+1;
+  const bEnd=val.indexOf('\n',en); const lineEnd=bEnd<0?val.length:bEnd;
+  const block=val.slice(bStart,lineEnd);
+  const toggled=block.split('\n').map(l=>l.startsWith(prefix)?l.slice(prefix.length):prefix+l).join('\n');
+  const delta=toggled.length-block.length;
+  ta.value=val.slice(0,bStart)+toggled+val.slice(lineEnd);
+  ta.selectionStart=s+delta; ta.selectionEnd=en+delta;
+  ta.focus();markMod();renderPreview();
+}
+
+function fmtOL(){
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  const val=ta.value;
+  const bStart=val.lastIndexOf('\n',s-1)+1;
+  const bEnd=val.indexOf('\n',en); const lineEnd=bEnd<0?val.length:bEnd;
+  const lines=val.slice(bStart,lineEnd).split('\n');
+  let n=1;
+  const tog=lines.map(l=>{
+    if(/^\d+\.\s/.test(l)) return l.replace(/^\d+\.\s/,'');
+    return (n++)+'. '+l;
+  }).join('\n');
+  const delta=tog.length-(lineEnd-bStart);
+  ta.value=val.slice(0,bStart)+tog+val.slice(lineEnd);
+  ta.selectionStart=s+delta;ta.selectionEnd=en+delta;
+  ta.focus();markMod();renderPreview();
+}
+
+function fmtCodeBlock(){
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  const sel=ta.value.slice(s,en)||'code hier';
+  const ins='```\n'+sel+'\n```';
+  ta.value=ta.value.slice(0,s)+ins+ta.value.slice(en);
+  ta.selectionStart=s+4;ta.selectionEnd=s+4+sel.length;
+  ta.focus();markMod();renderPreview();
+}
+
+function fmtHR(){
+  const ta=ed(),s=ta.selectionStart;
+  const before=ta.value.slice(0,s);
+  const pfx=before===''||before.endsWith('\n\n')?'':before.endsWith('\n')?'\n':'\n\n';
+  const ins=pfx+'---\n\n';
+  ta.value=before+ins+ta.value.slice(s);
+  ta.selectionStart=ta.selectionEnd=s+ins.length;
+  ta.focus();markMod();renderPreview();
+}
+
+function fmtImg(){
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  const alt=ta.value.slice(s,en)||'Beschreibung';
+  const ins='!['+alt+'](url)';
+  ta.value=ta.value.slice(0,s)+ins+ta.value.slice(en);
+  const up=s+3+alt.length+2;
+  ta.selectionStart=up;ta.selectionEnd=up+3;
+  ta.focus();markMod();renderPreview();
+}
+
+$('fb-h1').onclick=()=>fmtLinePrefix('# ');
+$('fb-h2').onclick=()=>fmtLinePrefix('## ');
+$('fb-h3').onclick=()=>fmtLinePrefix('### ');
+$('fb-bold').onclick=()=>fmtWrap('**','**','Fetter Text');
+$('fb-ital').onclick=()=>fmtWrap('*','*','Kursiver Text');
+$('fb-strike').onclick=()=>fmtWrap('~~','~~','Durchgestrichen');
+$('fb-code').onclick=()=>fmtWrap('`','`','code');
+$('fb-codebl').onclick=fmtCodeBlock;
+$('fb-ul').onclick=()=>fmtLinePrefix('- ');
+$('fb-ol').onclick=fmtOL;
+$('fb-task').onclick=()=>fmtLinePrefix('- [ ] ');
+$('fb-quote').onclick=()=>fmtLinePrefix('> ');
+$('fb-hr').onclick=fmtHR;
+$('fb-link').onclick=openLinkBar;
+$('fb-img').onclick=fmtImg;
+$('fb-table').onclick=openTableEditor;
+
+// ── SMART ENTER (list / blockquote continuation) ─────────────
+ed().addEventListener('keydown',function(e){
+  if(e.key!=='Enter'||e.ctrlKey||e.metaKey||e.shiftKey) return;
+  const ta=ed(),pos=ta.selectionStart;
+  if(ta.selectionStart!==ta.selectionEnd) return;
+  const lS=ta.value.lastIndexOf('\n',pos-1)+1;
+  const line=ta.value.slice(lS,pos);
+  // Bullet list
+  const ul=line.match(/^(\s*)([-*+]) (.+)/);
+  if(ul){
+    e.preventDefault();
+    const ins='\n'+ul[1]+ul[2]+' ';
+    ta.value=ta.value.slice(0,pos)+ins+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=pos+ins.length;
+    markMod();renderPreview();return;
+  }
+  if(line.match(/^(\s*)([-*+]) $/)){
+    e.preventDefault();
+    ta.value=ta.value.slice(0,lS)+'\n'+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=lS+1;
+    markMod();renderPreview();return;
+  }
+  // Numbered list
+  const ol=line.match(/^(\s*)(\d+)\. (.+)/);
+  if(ol){
+    e.preventDefault();
+    const ins='\n'+ol[1]+(parseInt(ol[2])+1)+'. ';
+    ta.value=ta.value.slice(0,pos)+ins+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=pos+ins.length;
+    markMod();renderPreview();return;
+  }
+  if(line.match(/^(\s*)\d+\. $/)){
+    e.preventDefault();
+    ta.value=ta.value.slice(0,lS)+'\n'+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=lS+1;
+    markMod();renderPreview();return;
+  }
+  // Task list
+  const task=line.match(/^(\s*)([-*+]) \[[ xX]?\] (.+)/);
+  if(task){
+    e.preventDefault();
+    const ins='\n'+task[1]+task[2]+' [ ] ';
+    ta.value=ta.value.slice(0,pos)+ins+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=pos+ins.length;
+    markMod();renderPreview();return;
+  }
+  // Blockquote
+  if(line.match(/^> .+/)){
+    e.preventDefault();
+    const ins='\n> ';
+    ta.value=ta.value.slice(0,pos)+ins+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=pos+ins.length;
+    markMod();renderPreview();return;
+  }
+  if(line.match(/^> $/)){
+    e.preventDefault();
+    ta.value=ta.value.slice(0,lS)+'\n'+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=lS+1;
+    markMod();renderPreview();return;
+  }
+});
+
+// ── AUTO-PAIR: wrap selection with brackets/quotes ────────────
+ed().addEventListener('keydown',function(e){
+  const OPEN={'(':')',  '[':']', '{':'}', '`':'`'};
+  if(!(e.key in OPEN)||e.ctrlKey||e.metaKey||e.altKey) return;
+  const ta=ed(),s=ta.selectionStart,en=ta.selectionEnd;
+  if(s===en) return; // only wrap selections
+  e.preventDefault();
+  const sel=ta.value.slice(s,en);
+  const ins=e.key+sel+OPEN[e.key];
+  ta.value=ta.value.slice(0,s)+ins+ta.value.slice(en);
+  ta.selectionStart=s+1;ta.selectionEnd=s+1+sel.length;
+  markMod();renderPreview();
+});
+
+// ── PASTE: TSV/CSV → Markdown table ──────────────────────────
+ed().addEventListener('paste',function(e){
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  if(!text) return;
+  const lines=text.trim().split('\n');
+  if(lines.length<2) return;
+  const tabRows=lines.map(l=>l.split('\t'));
+  if(!tabRows.every(r=>r.length>1)||tabRows[0].length<2) return;
+  e.preventDefault();
+  const cols=Math.max(...tabRows.map(r=>r.length));
+  const widths=Array.from({length:cols},(_,c)=>Math.max(3,...tabRows.map(r=>(r[c]||'').trim().length)));
+  const pad=(s,w)=>' '+(s||'').trim().padEnd(w)+' ';
+  let md='|'+tabRows[0].map((h,c)=>pad(h,widths[c])).join('|')+'|\n';
+  md+='|'+widths.map(w=>'-'.repeat(w+2)).join('|')+'|\n';
+  for(let r=1;r<tabRows.length;r++) md+='|'+Array.from({length:cols},(_,c)=>pad(tabRows[r][c]||'',widths[c])).join('|')+'|\n';
+  const ta=ed(),pos=ta.selectionStart;
+  const before=ta.value.slice(0,pos);
+  const pfx=before===''||before.endsWith('\n\n')?'':before.endsWith('\n')?'\n':'\n\n';
+  ta.value=before+pfx+md+ta.value.slice(pos);
+  ta.selectionStart=ta.selectionEnd=pos+pfx.length+md.length;
+  markMod();renderPreview();
+  toast('TSV \u2192 Tabelle konvertiert');
+});
+
+// ── LINK BAR ──────────────────────────────────────────────────
+let _lkS=-1,_lkE=-1;
+function openLinkBar(){
+  if(S.cur<0) return;
+  const ta=ed();
+  _lkS=ta.selectionStart; _lkE=ta.selectionEnd;
+  const sel=ta.value.slice(_lkS,_lkE);
+  $('l-text').value=sel;
+  $('l-url').value='';
+  const fb=$('fmt-bar').getBoundingClientRect();
+  const bar=$('link-bar');
+  bar.style.top=(fb.bottom+4)+'px';
+  bar.style.left=(fb.left+4)+'px';
+  bar.classList.add('vis');
+  (sel?$('l-url'):$('l-text')).focus();
+}
+function doInsertLink(){
+  const txt=$('l-text').value||'Link';
+  const url=$('l-url').value||'https://';
+  const ins='['+txt+']('+url+')';
+  const ta=ed();
+  ta.value=ta.value.slice(0,_lkS)+ins+ta.value.slice(_lkE);
+  ta.selectionStart=ta.selectionEnd=_lkS+ins.length;
+  ta.focus();markMod();renderPreview();
+  $('link-bar').classList.remove('vis');
+}
+$('l-x2').onclick=()=>$('link-bar').classList.remove('vis');
+$('l-text').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();$('l-url').focus();}
+  if(e.key==='Escape') $('link-bar').classList.remove('vis');
+});
+$('l-url').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();doInsertLink();}
+  if(e.key==='Escape') $('link-bar').classList.remove('vis');
+});
+
+// ── TABLE EDITOR ──────────────────────────────────────────────
+const TE={rows:3,cols:3,aligns:[],srcStart:-1,srcEnd:-1};
+
+function openTableEditor(){
+  if(S.cur<0) return;
+  TE.rows=3;TE.cols=3;TE.aligns=Array(3).fill('left');TE.srcStart=-1;TE.srcEnd=-1;
+  // Try to load table at cursor
+  _teLoadCursor();
+  showM('m-table');
+  setTimeout(()=>{const c=$('te-grid').querySelector('.te-cell');if(c){c.focus();c.select();}},80);
+}
+
+function _teLoadCursor(){
+  const ta=ed(),pos=ta.selectionStart,val=ta.value;
+  const lS=val.lastIndexOf('\n',pos-1)+1;
+  const lE=val.indexOf('\n',pos);
+  const curLine=val.slice(lS,lE<0?undefined:lE);
+  if(!curLine.trimStart().startsWith('|')) return;
+  // Expand upward
+  let tStart=lS;
+  {let p=lS-2;while(p>=0){const ls=val.lastIndexOf('\n',p)+1;const l=val.slice(ls,p+1);if(l.trimStart().startsWith('|')){tStart=ls;p=ls-2;}else break;}}
+  // Expand downward
+  let tEnd=lE<0?val.length:lE;
+  {let q=tEnd+1;while(q<val.length){const le=val.indexOf('\n',q);const l=val.slice(q,le<0?undefined:le);if(l.trimStart().startsWith('|')){tEnd=le<0?val.length:le;q=tEnd+1;}else break;}}
+  const tableLines=val.slice(tStart,tEnd).split('\n').filter(l=>l.trim());
+  const dataLines=tableLines.filter(l=>!l.includes('---'));
+  if(!dataLines.length) return;
+  const sepLine=tableLines.find(l=>l.includes('---'));
+  const parsed=dataLines.map(l=>l.split('|').slice(1,-1).map(c=>c.trim()));
+  const cols=Math.max(...parsed.map(r=>r.length));
+  const aligns=sepLine
+    ?sepLine.split('|').slice(1,-1).map(c=>{c=c.trim();return c.startsWith(':')&&c.endsWith(':')?' center ':c.endsWith(':')?' right ':'left';}).map(a=>a.trim())
+    :Array(cols).fill('left');
+  TE.rows=parsed.length;TE.cols=cols;
+  TE.aligns=[...aligns,...Array(Math.max(0,cols-aligns.length)).fill('left')];
+  TE.srcStart=tStart;TE.srcEnd=tEnd;
+  teRender();
+  parsed.forEach((row,ri)=>row.forEach((cell,ci)=>{const inp=document.getElementById('te-'+ri+'-'+ci);if(inp)inp.value=cell;}));
+}
+
+function teRender(){
+  let h='<table class="te-tbl"><thead><tr><th style="width:28px"></th>';
+  for(let c=0;c<TE.cols;c++){
+    const al=TE.aligns[c]||'left';
+    h+='<th><select class="te-asel" id="te-al-'+c+'" title="Ausrichtung" onchange="TE.aligns['+c+']=this.value">'
+      +'<option value="left"'+(al==='left'?' selected':'')+'>&#8678; Links</option>'
+      +'<option value="center"'+(al==='center'?' selected':'')+'>&#8644; Mitte</option>'
+      +'<option value="right"'+(al==='right'?' selected':'')+'>&#8680; Rechts</option>'
+      +'</select>'
+      +(TE.cols>1?'<button class="te-xbtn" onclick="teDelColAt('+c+')" title="Spalte l\xF6schen">&#x2715;</button>':'')
+      +'</th>';
+  }
+  h+='</tr></thead><tbody>';
+  for(let r=0;r<TE.rows;r++){
+    h+='<tr><td>'+(TE.rows>1?'<button class="te-xbtn" onclick="teDelRowAt('+r+')" title="Zeile l\xF6schen">&#x2715;</button>':'')+'</td>';
+    for(let c=0;c<TE.cols;c++){
+      const cls=r===0?' hdr':'';
+      h+='<td><input type="text" class="te-cell'+cls+'" id="te-'+r+'-'+c
+        +'" placeholder="'+(r===0?'Spalte '+(c+1):'&hellip;')+'"'
+        +' onkeydown="teCellKey(event,'+r+','+c+')" spellcheck="false" autocomplete="off"></td>';
+    }
+    h+='</tr>';
+  }
+  h+='</tbody></table>';
+  $('te-grid').innerHTML=h;
+}
+
+function teCellKey(e,r,c){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    let nr=r,nc=c+(e.shiftKey?-1:1);
+    if(nc>=TE.cols){nc=0;nr++;}
+    if(nc<0){nc=TE.cols-1;nr--;}
+    if(nr<0){nr=0;nc=0;}
+    if(nr>=TE.rows){teSaveAligns();const v=teGetVals();TE.rows++;teRender();teSetVals(v);nr=TE.rows-1;nc=0;}
+    const nxt=document.getElementById('te-'+nr+'-'+nc);
+    if(nxt){nxt.focus();nxt.select();}
+  }
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    let nr=r+1;
+    if(nr>=TE.rows){teSaveAligns();const v=teGetVals();TE.rows++;teRender();teSetVals(v);}
+    const nxt=document.getElementById('te-'+(r+1)+'-'+c);
+    if(nxt){nxt.focus();nxt.select();}
+  }
+}
+
+function teSaveAligns(){for(let c=0;c<TE.cols;c++){const s=document.getElementById('te-al-'+c);if(s)TE.aligns[c]=s.value;}}
+
+function teGetVals(){
+  const v=[];
+  for(let r=0;r<TE.rows;r++){const row=[];for(let c=0;c<TE.cols;c++){const i=document.getElementById('te-'+r+'-'+c);row.push(i?i.value:'');}v.push(row);}
+  return v;
+}
+
+function teSetVals(vals){vals.forEach((row,r)=>row.forEach((val,c)=>{const i=document.getElementById('te-'+r+'-'+c);if(i)i.value=val;}));}
+
+function teAddRow(){teSaveAligns();const v=teGetVals();TE.rows++;teRender();teSetVals(v);}
+function teAddCol(){teSaveAligns();const v=teGetVals();TE.cols++;TE.aligns.push('left');teRender();teSetVals(v);}
+function teDelRow(){if(TE.rows<=1)return;teSaveAligns();const v=teGetVals();v.pop();TE.rows--;teRender();teSetVals(v);}
+function teDelCol(){if(TE.cols<=1)return;teSaveAligns();const v=teGetVals();v.forEach(r=>r.pop());TE.cols--;TE.aligns.pop();teRender();teSetVals(v);}
+function teDelRowAt(i){if(TE.rows<=1)return;teSaveAligns();const v=teGetVals();v.splice(i,1);TE.rows--;teRender();teSetVals(v);}
+function teDelColAt(i){if(TE.cols<=1)return;teSaveAligns();const v=teGetVals();v.forEach(r=>r.splice(i,1));TE.cols--;TE.aligns.splice(i,1);teRender();teSetVals(v);}
+
+function teBuildMD(){
+  teSaveAligns();
+  const vals=teGetVals();
+  if(!vals.length||!vals[0].length) return '';
+  const ww=Array.from({length:TE.cols},(_,c)=>Math.max(3,...vals.map(row=>(row[c]||'').length)));
+  const pad=(s,w)=>' '+(s||'').padEnd(w)+' ';
+  // Each sep cell = ww[c]+2 chars (matching padded header)
+  const mkSep=(w,al)=>al==='center'?':'+'-'.repeat(w)+':':al==='right'?'-'.repeat(w+1)+':':':'+'-'.repeat(w+1);
+  let md='|'+vals[0].map((cell,c)=>pad(cell,ww[c])).join('|')+'|\n';
+  md+='|'+TE.aligns.map((al,c)=>mkSep(ww[c],al)).join('|')+'|\n';
+  for(let r=1;r<vals.length;r++) md+='|'+vals[r].map((cell,c)=>pad(cell,ww[c])).join('|')+'|\n';
+  return md;
+}
+
+function teInsert(){
+  const md=teBuildMD();
+  if(!md){toast('Tabelle ist leer');return;}
+  const ta=ed();
+  if(TE.srcStart>=0&&TE.srcEnd>=0){
+    ta.value=ta.value.slice(0,TE.srcStart)+md.trimEnd()+ta.value.slice(TE.srcEnd);
+    ta.selectionStart=ta.selectionEnd=TE.srcStart+md.trimEnd().length;
+  } else {
+    const pos=ta.selectionStart;
+    const before=ta.value.slice(0,pos);
+    const pfx=before===''||before.endsWith('\n\n')?'':before.endsWith('\n')?'\n':'\n\n';
+    ta.value=before+pfx+md+ta.value.slice(pos);
+    ta.selectionStart=ta.selectionEnd=pos+pfx.length+md.length;
+  }
+  ta.focus();markMod();renderPreview();
+  hideM('m-table');
+  toast(TE.srcStart>=0?'Tabelle aktualisiert':'Tabelle eingef\xFCgt');
+}
+
+async function teFromClip(){
+  let text='';
+  try{text=await navigator.clipboard.readText();}
+  catch{toast('Kein Zugriff auf Zwischenablage');return;}
+  if(!text.trim()){toast('Zwischenablage leer');return;}
+  const lines=text.trim().split('\n');
+  const tabRows=lines.map(l=>l.split('\t'));
+  const isTSV=tabRows.every(r=>r.length>1)&&tabRows[0].length>1;
+  let parsed;
+  if(isTSV){
+    parsed=tabRows;
+  } else {
+    // try CSV
+    parsed=lines.map(l=>l.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+    if(!parsed.every(r=>r.length>1)||parsed[0].length<2){toast('Kein Tabelleninhalt erkannt');return;}
+  }
+  const cols=Math.max(...parsed.map(r=>r.length));
+  TE.rows=parsed.length;TE.cols=cols;TE.aligns=Array(cols).fill('left');TE.srcStart=-1;TE.srcEnd=-1;
+  teRender();
+  parsed.forEach((row,ri)=>row.forEach((cell,ci)=>{const i=document.getElementById('te-'+ri+'-'+ci);if(i)i.value=cell;}));
+  toast(parsed.length+' Zeilen aus Zwischenablage');
+}
 
 // Internal anchor navigation in preview and form pane
 function initPreviewLinks(){
