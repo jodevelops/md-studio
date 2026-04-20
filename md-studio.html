@@ -1538,24 +1538,35 @@ function updateNavPane(){
 
 function navJump(i){
   const h=_navH[i]; if(!h) return;
-  // Jump in editor
-  const ta=ed(), lines=ta.value.split('\n');
+  // Lock sync to prevent scroll events from fighting each other during jump
+  S.syncLock=true;
+  const ta=ed();
+  const lh=parseFloat(getComputedStyle(ta).lineHeight)||23;
+  // Editor: move cursor and position heading at top of viewport
+  const lines=ta.value.split('\n');
   let pos=0; for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
   ta.focus(); ta.setSelectionRange(pos,pos);
-  const lh=parseFloat(getComputedStyle(ta).lineHeight)||23;
-  ta.scrollTop=h.line*lh-ta.clientHeight/3;
-  // Jump in preview/form
-  const slug=gfmSlug(h.txt);
+  ta.scrollTop=h.line*lh;
+  // Preview/form: scroll directly to the heading element
   const isForm=S.view==='form'||S.view==='form-split';
   const container=isForm?$('form-pane'):$('prev-pane');
   const content=isForm?$('form-content'):$('preview');
   try{
-    const target=content.querySelector('#'+CSS.escape(slug));
+    const target=content.querySelector('#'+CSS.escape(gfmSlug(h.txt)));
     if(target&&container){
       const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
-      container.scrollTop=top-20;
+      container.scrollTop=Math.max(0,top);
     }
   }catch{}
+  // Directly highlight the correct nav item without re-computing from scrollTop
+  const items=[...$('nav-list').querySelectorAll('.np-item')];
+  items.forEach((el,j)=>el.classList.toggle('active',j===i));
+  if(items[i]){
+    const nl=$('nav-list');
+    if(items[i].offsetTop<nl.scrollTop||items[i].offsetTop+items[i].offsetHeight>nl.scrollTop+nl.clientHeight)
+      nl.scrollTop=items[i].offsetTop-nl.clientHeight/2+items[i].offsetHeight/2;
+  }
+  requestAnimationFrame(()=>{S.syncLock=false;});
 }
 
 // ── TOC INSERT ───────────────────────────────────────────────
