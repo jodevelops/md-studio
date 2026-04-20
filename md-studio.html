@@ -1520,15 +1520,17 @@ function toggleNav(){
 }
 
 function updateNavPane(){
-  if(!$('nav-pane').classList.contains('vis')) return;
-  const list=$('nav-list');
-  if(S.cur<0){list.innerHTML='<div class="np-empty">Keine Datei ge\xF6ffnet</div>';return;}
-  const lines=ed().value.split('\n');
+  // Always rebuild _navH so scroll sync has anchor data regardless of nav visibility.
+  const lines=S.cur>=0?ed().value.split('\n'):[];
   _navH=[];
   lines.forEach((l,i)=>{
     const m=l.match(/^(#{1,3})\s+(.+)/);
     if(m) _navH.push({lv:m[1].length,txt:m[2].trim().replace(/[*_~`[\]]/g,''),line:i});
   });
+  // Only update the nav pane DOM when it is visible.
+  if(!$('nav-pane').classList.contains('vis')) return;
+  const list=$('nav-list');
+  if(S.cur<0){list.innerHTML='<div class="np-empty">Keine Datei ge\xF6ffnet</div>';return;}
   if(!_navH.length){list.innerHTML='<div class="np-empty">Keine \xDCberschriften</div>';return;}
   list.innerHTML=_navH.map((h,i)=>'<div class="np-item np-h'+h.lv+'" onclick="navJump('+i+')" title="'+E(h.txt)+'">'+E(h.txt)+'</div>').join('');
 }
