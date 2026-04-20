@@ -1081,102 +1081,106 @@ function initScrollSync(){
     return el.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop;
   }
 
-  // Sync editor scroll position → preview/form pane using heading anchors.
-  // Falls back to percentage-ratio if no headings exist or counts differ.
-  function syncEditorToPane(pane){
+  // Build heading anchor pairs by matching _navH entries to preview elements via slug IDs.
+  // Tolerates count mismatches (setext headings, H4+ headings, headings in code blocks).
+  function buildAnchorPairs(pane){
     const content=pane===pp?$('preview'):$('form-content');
     const navH=_navH||[];
+    if(!navH.length) return null;
+    const pairs=[];
+    for(const h of navH){
+      const slug=gfmSlug(h.txt);
+      if(!slug) continue;
+      try{
+        const el=content.querySelector('#'+CSS.escape(slug));
+        if(el) pairs.push({edLine:h.line,pvTop:elTopInPane(el,pane)});
+      }catch(_){}
+    }
+    return pairs.length?pairs:null;
+  }
+
+  // Sync editor scroll position → preview/form pane using heading anchors.
+  function syncEditorToPane(pane){
     const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
     const curLine=textarea.scrollTop/lh;
 
-    if(!navH.length){
-      const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
-      pane.scrollTop=r*Math.max(0,pane.scrollHeight-pane.clientHeight);
-      return;
-    }
-    const pvH=Array.from(content.querySelectorAll('h1,h2,h3'));
-    if(pvH.length!==navH.length){
+    const pairs=buildAnchorPairs(pane);
+    if(!pairs){
       const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
       pane.scrollTop=r*Math.max(0,pane.scrollHeight-pane.clientHeight);
       return;
     }
 
-    if(navH[0].line>curLine){
-      // Before first heading: interpolate from top to first heading
-      const fhTop=elTopInPane(pvH[0],pane);
-      const frac=navH[0].line>0?curLine/navH[0].line:0;
-      pane.scrollTop=Math.max(0,frac*fhTop);
+    if(pairs[0].edLine>curLine){
+      // Before first anchor: interpolate from top to first heading
+      const frac=pairs[0].edLine>0?curLine/pairs[0].edLine:0;
+      pane.scrollTop=Math.max(0,frac*pairs[0].pvTop);
       return;
     }
 
     let si=0;
-    for(let i=1;i<navH.length;i++){ if(navH[i].line<=curLine) si=i; else break; }
+    for(let i=1;i<pairs.length;i++){ if(pairs[i].edLine<=curLine) si=i; else break; }
 
-    if(si===navH.length-1){
-      // After last heading: interpolate through remaining content
-      const totalLines=textarea.value.split('\n').length;
-      const remLines=Math.max(1,totalLines-navH[si].line);
-      const frac=(curLine-navH[si].line)/remLines;
-      const hTop=elTopInPane(pvH[si],pane);
-      const remPv=Math.max(0,pane.scrollHeight-hTop);
-      pane.scrollTop=hTop+frac*remPv;
+    if(si===pairs.length-1){
+      // After last anchor: interpolate through remaining content proportionally
+      const edStart=pairs[si].edLine*lh;
+      const pvStart=pairs[si].pvTop;
+      const maxEdScroll=textarea.scrollHeight-textarea.clientHeight;
+      const maxPvScroll=pane.scrollHeight-pane.clientHeight;
+      const edRange=Math.max(1,maxEdScroll-edStart);
+      const pvRange=Math.max(0,maxPvScroll-pvStart);
+      const frac=Math.max(0,(textarea.scrollTop-edStart)/edRange);
+      pane.scrollTop=pvStart+frac*pvRange;
       return;
     }
 
-    // Interpolate within section between heading si and si+1
-    const edSec=Math.max(1,navH[si+1].line-navH[si].line);
-    const frac=(curLine-navH[si].line)/edSec;
-    const curTop=elTopInPane(pvH[si],pane);
-    const nextTop=elTopInPane(pvH[si+1],pane);
-    pane.scrollTop=curTop+frac*(nextTop-curTop);
+    // Interpolate within section between anchor si and si+1
+    const edSec=Math.max(1,pairs[si+1].edLine-pairs[si].edLine);
+    const frac=(curLine-pairs[si].edLine)/edSec;
+    pane.scrollTop=pairs[si].pvTop+frac*(pairs[si+1].pvTop-pairs[si].pvTop);
   }
 
   // Sync preview/form pane scroll position → editor using heading anchors.
   function syncPaneToEditor(pane){
-    const content=pane===pp?$('preview'):$('form-content');
-    const navH=_navH||[];
     const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
 
-    if(!navH.length){
-      const r=pane.scrollTop/Math.max(1,pane.scrollHeight-pane.clientHeight);
-      textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
-      return;
-    }
-    const pvH=Array.from(content.querySelectorAll('h1,h2,h3'));
-    if(pvH.length!==navH.length){
+    const pairs=buildAnchorPairs(pane);
+    if(!pairs){
       const r=pane.scrollTop/Math.max(1,pane.scrollHeight-pane.clientHeight);
       textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
       return;
     }
 
-    const pvTops=pvH.map(h=>elTopInPane(h,pane));
     const cur=pane.scrollTop;
 
-    if(pvTops[0]>cur){
-      // Before first heading
-      const frac=pvTops[0]>0?cur/pvTops[0]:0;
-      textarea.scrollTop=Math.max(0,frac*navH[0].line*lh);
+    if(pairs[0].pvTop>cur){
+      // Before first anchor
+      const frac=pairs[0].pvTop>0?cur/pairs[0].pvTop:0;
+      textarea.scrollTop=Math.max(0,frac*pairs[0].edLine*lh);
       return;
     }
 
     let si=0;
-    for(let i=1;i<pvTops.length;i++){ if(pvTops[i]<=cur) si=i; else break; }
+    for(let i=1;i<pairs.length;i++){ if(pairs[i].pvTop<=cur) si=i; else break; }
 
-    if(si===navH.length-1){
-      // After last heading
-      const totalLines=textarea.value.split('\n').length;
-      const remLines=Math.max(1,totalLines-navH[si].line);
-      const remPv=Math.max(1,pane.scrollHeight-pvTops[si]);
-      const frac=(cur-pvTops[si])/remPv;
-      textarea.scrollTop=navH[si].line*lh+frac*remLines*lh;
+    if(si===pairs.length-1){
+      // After last anchor
+      const pvStart=pairs[si].pvTop;
+      const edStart=pairs[si].edLine*lh;
+      const maxPvScroll=pane.scrollHeight-pane.clientHeight;
+      const maxEdScroll=textarea.scrollHeight-textarea.clientHeight;
+      const pvRange=Math.max(1,maxPvScroll-pvStart);
+      const edRange=Math.max(0,maxEdScroll-edStart);
+      const frac=(cur-pvStart)/pvRange;
+      textarea.scrollTop=edStart+frac*edRange;
       return;
     }
 
-    // Interpolate within section between heading si and si+1
-    const pvSec=Math.max(1,pvTops[si+1]-pvTops[si]);
-    const frac=(cur-pvTops[si])/pvSec;
-    const edSec=Math.max(1,navH[si+1].line-navH[si].line);
-    textarea.scrollTop=navH[si].line*lh+frac*edSec*lh;
+    // Interpolate within section between anchor si and si+1
+    const pvSec=Math.max(1,pairs[si+1].pvTop-pairs[si].pvTop);
+    const frac=(cur-pairs[si].pvTop)/pvSec;
+    const edSec=Math.max(1,pairs[si+1].edLine-pairs[si].edLine);
+    textarea.scrollTop=pairs[si].edLine*lh+frac*edSec*lh;
   }
 
   textarea.addEventListener('scroll',()=>{
