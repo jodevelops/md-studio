@@ -78,9 +78,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 #empty p{font-size:11.5px;text-align:center;max-width:220px;line-height:1.6}
 .drop-hint{margin-top:8px;padding:6px 14px;border:1px dashed #2a2a2a;border-radius:20px;font-size:10.5px;color:#333;transition:border-color .15s,color .15s}
 #empty.dov .drop-hint{border-color:var(--acc);color:var(--acc)}
-#ed-pane{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--bg-ed)}
-#editor{flex:1;width:100%;background:var(--bg-ed);color:var(--ted);border:none;outline:none;resize:none;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;-webkit-font-smoothing:antialiased}
+#ed-pane{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--bg-ed);position:relative}
+#editor{flex:1;width:100%;background:transparent;color:var(--ted);border:none;outline:none;resize:none;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;-webkit-font-smoothing:antialiased;position:relative;z-index:2}
 #editor::selection{background:rgba(200,134,10,.28)}
+#ed-hl{position:absolute;inset:0;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;white-space:pre-wrap;word-break:break-word;overflow:hidden;pointer-events:none;color:transparent;z-index:1;-webkit-font-smoothing:antialiased;display:none}
 #divider{width:5px;background:var(--bd);cursor:col-resize;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
 #divider::after{content:'';width:2px;height:32px;background:#333;border-radius:1px}
 #divider:hover,#divider.drag{background:rgba(200,134,10,.4)}
@@ -151,7 +152,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .s-btn:hover{background:#2a2a2a;color:#fff}
 #s-x{background:transparent;border:none;color:#444;cursor:pointer;font-size:15px;line-height:1;padding:0 1px}
 #s-x:hover{color:#fff}
-.hl{background:rgba(200,134,10,.35);border-radius:2px}
+.hl{background:linear-gradient(to right,rgba(210,80,125,.52),rgba(210,80,125,0));border-radius:2px}
 .ovl{position:fixed;inset:0;background:rgba(0,0,0,.72);align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px);display:none}
 .ovl.vis{display:flex}
 .modal{background:#1a1a1a;border:1px solid #2e2e2e;border-radius:8px;padding:20px;min-width:360px;max-width:480px;box-shadow:0 24px 60px rgba(0,0,0,.9)}
@@ -396,7 +397,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
       <p>Ordner &#246;ffnen oder Markdown-Dateien laden</p>
       <div class="drop-hint">oder .md Dateien hier ablegen</div>
     </div>
-    <div id="ed-pane" style="display:none"><textarea id="editor" spellcheck="false" placeholder="Markdown hier eingeben..."></textarea></div>
+    <div id="ed-pane" style="display:none"><div id="ed-hl" aria-hidden="true"></div><textarea id="editor" spellcheck="false" placeholder="Markdown hier eingeben..."></textarea></div>
     <div id="divider" style="display:none"></div>
     <div id="prev-pane" style="display:none"><div id="preview" class="mdb"></div></div>
     <div id="form-pane" style="display:none"><div id="form-content" class="mdb"></div></div>
@@ -1129,7 +1130,7 @@ function doSearch(){
   S.matchIdx=0;
   $('s-cnt').textContent=S.matches.length?'1 / '+S.matches.length:'Keine Treffer';
   if(S.matches.length) jumpTo(0);
-  hlPV(q);
+  hlPV(q); hlFM(q); hlEd(q);
 }
 
 function jumpTo(idx){
@@ -1158,7 +1159,36 @@ function hlPV(q){
   });
 }
 
-function clearHL(){pv().querySelectorAll('.hl').forEach(m=>m.replaceWith(m.textContent));pv().normalize();}
+function hlFM(q){
+  const rx=new RegExp('('+rxE(q)+')','gi');
+  const fc=$('form-content');
+  const skip=new Set(['INPUT','SELECT','TEXTAREA','SCRIPT','STYLE']);
+  const walker=document.createTreeWalker(fc,NodeFilter.SHOW_TEXT,{acceptNode:n=>skip.has(n.parentElement?.tagName)?NodeFilter.FILTER_SKIP:NodeFilter.FILTER_ACCEPT});
+  const nodes=[]; let n;
+  while(n=walker.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{
+    if(!rx.test(node.textContent)){rx.lastIndex=0;return;}
+    rx.lastIndex=0;
+    const sp=document.createElement('span');
+    sp.innerHTML=node.textContent.replace(rx,'<mark class="hl">$1</mark>');
+    node.parentNode.replaceChild(sp,node);
+  });
+}
+
+function hlEd(q){
+  const ov=$('ed-hl'), e=ed();
+  if(!q){ov.innerHTML='';ov.style.display='none';return;}
+  const rx=new RegExp('('+rxE(q)+')','gi');
+  const escaped=e.value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  ov.innerHTML=escaped.replace(rx,'<mark class="hl">$1</mark>');
+  ov.scrollTop=e.scrollTop;
+  ov.style.display='block';
+}
+
+function clearHL(){
+  [pv(),$('form-content')].forEach(c=>{c.querySelectorAll('.hl').forEach(m=>m.replaceWith(m.textContent));c.normalize();});
+  const ov=$('ed-hl'); ov.innerHTML=''; ov.style.display='none';
+}
 function rxE(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 
 // ── PDF ──────────────────────────────────────────────────────
@@ -1251,6 +1281,7 @@ $('tb-pdf').onclick    = exportPDF;
 ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();});
 ed().addEventListener('keyup',updateCursor);
 ed().addEventListener('click',updateCursor);
+ed().addEventListener('scroll',()=>{const ov=$('ed-hl');if(ov.style.display!=='none') ov.scrollTop=ed().scrollTop;});
 
 ed().addEventListener('keydown',e=>{
   if(e.key!=='Tab') return;
