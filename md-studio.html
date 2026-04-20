@@ -1137,7 +1137,9 @@ function jumpTo(idx){
   S.matchIdx=((idx%S.matches.length)+S.matches.length)%S.matches.length;
   $('s-cnt').textContent=(S.matchIdx+1)+' / '+S.matches.length;
   const pos=S.matches[S.matchIdx], e=ed();
-  e.focus(); e.setSelectionRange(pos,pos+$('s-in').value.length);
+  const searchHasFocus=document.activeElement===$('s-in');
+  if(!searchHasFocus) e.focus();
+  e.setSelectionRange(pos,pos+$('s-in').value.length);
   const lh=parseFloat(getComputedStyle(e).lineHeight)||23;
   e.scrollTop=(e.value.substring(0,pos).split('\n').length-1)*lh-e.clientHeight/2;
 }
