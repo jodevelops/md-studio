@@ -847,6 +847,7 @@ function openFile(idx){
   ed().value=f.content;
   $('fname').textContent=f.name;
   renderPreview(); updateStats(); renderList(); showWork();
+  if(S.view==='form'||S.view==='form-split') renderForm();
 }
 
 // ── SAVE ────────────────────────────────────────────────────
@@ -1073,18 +1074,32 @@ function initDrag(){
 
 // ── SCROLL SYNC ──────────────────────────────────────────────
 function initScrollSync(){
-  const textarea=ed(), pp=$('prev-pane');
+  const textarea=ed(), pp=$('prev-pane'), fp=$('form-pane');
   textarea.addEventListener('scroll',()=>{
-    if(S.syncLock||S.view!=='split') return;
-    S.syncLock=true;
-    const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
-    pp.scrollTop=r*Math.max(0,pp.scrollHeight-pp.clientHeight);
-    requestAnimationFrame(()=>{S.syncLock=false;});
+    if(S.syncLock) return;
+    if(S.view==='split'){
+      S.syncLock=true;
+      const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
+      pp.scrollTop=r*Math.max(0,pp.scrollHeight-pp.clientHeight);
+      requestAnimationFrame(()=>{S.syncLock=false;});
+    } else if(S.view==='form-split'){
+      S.syncLock=true;
+      const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
+      fp.scrollTop=r*Math.max(0,fp.scrollHeight-fp.clientHeight);
+      requestAnimationFrame(()=>{S.syncLock=false;});
+    }
   });
   pp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='split') return;
     S.syncLock=true;
     const r=pp.scrollTop/Math.max(1,pp.scrollHeight-pp.clientHeight);
+    textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
+    requestAnimationFrame(()=>{S.syncLock=false;});
+  });
+  fp.addEventListener('scroll',()=>{
+    if(S.syncLock||S.view!=='form-split') return;
+    S.syncLock=true;
+    const r=fp.scrollTop/Math.max(1,fp.scrollHeight-fp.clientHeight);
     textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
     requestAnimationFrame(()=>{S.syncLock=false;});
   });
