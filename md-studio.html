@@ -552,7 +552,6 @@ function _render(){
   pv().innerHTML = fmHtml + bodyHtml;
   activateCB(pv());
   updateNavPane();
-  _smCache.pp=null;
 }
 
 function parseRender(src){
@@ -753,7 +752,6 @@ function renderForm(){
   addHeadingIds(tmp);
   $('form-content').innerHTML=banner+fmHtml+tmp.innerHTML;
   updateNavPane();
-  _smCache.fp=null;
 }
 
 function ffD(){
@@ -1076,73 +1074,95 @@ function initDrag(){
 }
 
 // ── SCROLL SYNC ──────────────────────────────────────────────
-// Cached scroll maps per pane. Invalidated by _render() / renderForm() / resize.
-let _smCache={pp:null,fp:null};
-
 function initScrollSync(){
   const textarea=ed(), pp=$('prev-pane'), fp=$('form-pane');
 
-  // Absolute offset of el from pane's scroll origin — scroll-position invariant.
-  function elTopInPane(el,pane){
-    return el.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop;
-  }
-
-  // Build two sorted point-lists from heading anchors + boundary points:
-  //   edPts  — sorted by edPx — for editor→preview interpolation
-  //   pvPts  — sorted by pvPx — for preview→editor interpolation
-  // Returns null when pane is hidden or no heading anchors match.
-  function buildScrollMap(pane){
-    if(!pane.clientHeight) return null;
+  // Snapshot heading positions from the live DOM for a single scroll event.
+  // ONE getBoundingClientRect call per pane + one per heading — no stale state.
+  // Returns [{line, pvPx}] in _navH order (line-ascending).
+  function buildPvMap(pane){
     const content=pane===pp?$('preview'):$('form-content');
     const navH=_navH||[];
-    const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
-    const edMax=Math.max(0,textarea.scrollHeight-textarea.clientHeight);
-    const pvMax=Math.max(0,pane.scrollHeight-pane.clientHeight);
-    const anchors=[];
+    if(!navH.length) return [];
+    const paneTop=pane.getBoundingClientRect().top;
+    const st=pane.scrollTop;
+    const out=[];
     for(const h of navH){
       const slug=gfmSlug(h.txt);
       if(!slug) continue;
       try{
         const el=content.querySelector('#'+CSS.escape(slug));
-        if(!el) continue;
-        anchors.push({edPx:h.line*lh, pvPx:elTopInPane(el,pane)});
+        if(el) out.push({line:h.line, pvPx:el.getBoundingClientRect().top-paneTop+st});
       }catch(_){}
     }
-    // edPts: sorted by edPx, add {0,0} and {edMax,pvMax} boundary points
-    const edPts=anchors.slice().sort((a,b)=>a.edPx-b.edPx);
-    if(!edPts.length||edPts[0].edPx>1) edPts.unshift({edPx:0,pvPx:0});
-    if(edPts[edPts.length-1].edPx<edMax) edPts.push({edPx:edMax,pvPx:pvMax});
-    // pvPts: sorted by pvPx, same boundary points
-    const pvPts=anchors.slice().sort((a,b)=>a.pvPx-b.pvPx);
-    if(!pvPts.length||pvPts[0].pvPx>1) pvPts.unshift({edPx:0,pvPx:0});
-    if(pvPts[pvPts.length-1].pvPx<pvMax) pvPts.push({edPx:edMax,pvPx:pvMax});
-    return {edPts,pvPts};
+    return out;
   }
 
-  function getMap(pane){
-    const key=pane===pp?'pp':'fp';
-    if(!_smCache[key]) _smCache[key]=buildScrollMap(pane);
-    return _smCache[key];
-  }
+  // Editor → pane: find which heading section the editor viewport top is in,
+  // then interpolate within that section using the preview heading positions.
+  function syncEditorToPane(pane){
+    const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
+    const T=textarea.scrollTop;
+    const curLine=T/lh;
+    const edMax=Math.max(0,textarea.scrollHeight-textarea.clientHeight);
+    const pvMax=Math.max(0,pane.scrollHeight-pane.clientHeight);
+    const m=buildPvMap(pane);
 
-  // Linear interpolation along a sorted point-list.
-  function interp(pts,srcPx,srcK,dstK){
-    if(!pts||pts.length<2) return null;
-    if(srcPx<=pts[0][srcK]) return pts[0][dstK];
-    const last=pts[pts.length-1];
-    if(srcPx>=last[srcK]) return last[dstK];
-    for(let i=0;i<pts.length-1;i++){
-      const a=pts[i],b=pts[i+1];
-      if(srcPx>=a[srcK]&&srcPx<b[srcK]){
-        const range=b[srcK]-a[srcK];
-        const frac=range>0?(srcPx-a[srcK])/range:0;
-        return a[dstK]+frac*(b[dstK]-a[dstK]);
-      }
+    if(!m.length){
+      pane.scrollTop=(T/Math.max(1,edMax))*pvMax;
+      return;
     }
-    return last[dstK];
+    // Before first heading
+    if(m[0].line>curLine){
+      pane.scrollTop=Math.max(0,(curLine/Math.max(1,m[0].line))*m[0].pvPx);
+      return;
+    }
+    let si=0;
+    for(let i=1;i<m.length;i++){ if(m[i].line<=curLine) si=i; else break; }
+
+    const edOff=T-m[si].line*lh;
+    if(si===m.length-1){
+      const frac=edOff/Math.max(1,edMax-m[si].line*lh);
+      pane.scrollTop=m[si].pvPx+Math.max(0,frac)*Math.max(0,pvMax-m[si].pvPx);
+      return;
+    }
+    const edSec=Math.max(1,(m[si+1].line-m[si].line)*lh);
+    const pvSec=Math.max(0,m[si+1].pvPx-m[si].pvPx);
+    pane.scrollTop=m[si].pvPx+Math.max(0,Math.min(1,edOff/edSec))*pvSec;
   }
 
-  // Highlight the nav item for the heading just above the current editor pixel.
+  // Pane → editor: mirror of the above, searching by pvPx.
+  function syncPaneToEditor(pane){
+    const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
+    const T=pane.scrollTop;
+    const edMax=Math.max(0,textarea.scrollHeight-textarea.clientHeight);
+    const pvMax=Math.max(0,pane.scrollHeight-pane.clientHeight);
+    // Sort a copy by pvPx for reverse lookup
+    const m=buildPvMap(pane).sort((a,b)=>a.pvPx-b.pvPx);
+
+    if(!m.length){
+      textarea.scrollTop=(T/Math.max(1,pvMax))*edMax;
+      return;
+    }
+    if(m[0].pvPx>T){
+      textarea.scrollTop=Math.max(0,(T/Math.max(1,m[0].pvPx))*m[0].line*lh);
+      return;
+    }
+    let si=0;
+    for(let i=1;i<m.length;i++){ if(m[i].pvPx<=T) si=i; else break; }
+
+    const pvOff=T-m[si].pvPx;
+    if(si===m.length-1){
+      const frac=pvOff/Math.max(1,pvMax-m[si].pvPx);
+      textarea.scrollTop=m[si].line*lh+Math.max(0,frac)*Math.max(0,edMax-m[si].line*lh);
+      return;
+    }
+    const pvSec=Math.max(1,m[si+1].pvPx-m[si].pvPx);
+    const edSec=Math.max(1,(m[si+1].line-m[si].line)*lh);
+    textarea.scrollTop=m[si].line*lh+Math.max(0,Math.min(1,pvOff/pvSec))*edSec;
+  }
+
+  // Highlight the nav item for the heading section currently at the editor viewport top.
   function updateNavActive(edPx){
     if(!$('nav-pane').classList.contains('vis')) return;
     const navH=_navH||[];
@@ -1150,16 +1170,13 @@ function initScrollSync(){
     const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
     const curLine=edPx/lh;
     let idx=-1;
-    for(let i=0;i<navH.length;i++){
-      if(navH[i].line<=curLine) idx=i; else break;
-    }
+    for(let i=0;i<navH.length;i++){ if(navH[i].line<=curLine) idx=i; else break; }
     const items=[...$('nav-list').querySelectorAll('.np-item')];
     items.forEach((el,i)=>el.classList.toggle('active',i===idx));
     if(idx>=0&&items[idx]){
       const it=items[idx],nl=$('nav-list');
-      if(it.offsetTop<nl.scrollTop||it.offsetTop+it.offsetHeight>nl.scrollTop+nl.clientHeight){
+      if(it.offsetTop<nl.scrollTop||it.offsetTop+it.offsetHeight>nl.scrollTop+nl.clientHeight)
         nl.scrollTop=it.offsetTop-nl.clientHeight/2+it.offsetHeight/2;
-      }
     }
   }
 
@@ -1169,45 +1186,25 @@ function initScrollSync(){
     updateNavActive(textarea.scrollTop);
     if(!pane) return;
     S.syncLock=true;
-    const map=getMap(pane);
-    const pvPx=map?interp(map.edPts,textarea.scrollTop,'edPx','pvPx'):null;
-    if(pvPx!==null) pane.scrollTop=pvPx;
-    else{
-      const r=textarea.scrollTop/Math.max(1,textarea.scrollHeight-textarea.clientHeight);
-      pane.scrollTop=r*Math.max(0,pane.scrollHeight-pane.clientHeight);
-    }
+    syncEditorToPane(pane);
     requestAnimationFrame(()=>{S.syncLock=false;});
   });
 
   pp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='split') return;
     S.syncLock=true;
-    const map=getMap(pp);
-    const edPx=map?interp(map.pvPts,pp.scrollTop,'pvPx','edPx'):null;
-    if(edPx!==null){ textarea.scrollTop=edPx; updateNavActive(edPx); }
-    else{
-      const r=pp.scrollTop/Math.max(1,pp.scrollHeight-pp.clientHeight);
-      textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
-      updateNavActive(textarea.scrollTop);
-    }
+    syncPaneToEditor(pp);
+    updateNavActive(textarea.scrollTop);
     requestAnimationFrame(()=>{S.syncLock=false;});
   });
 
   fp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='form-split') return;
     S.syncLock=true;
-    const map=getMap(fp);
-    const edPx=map?interp(map.pvPts,fp.scrollTop,'pvPx','edPx'):null;
-    if(edPx!==null){ textarea.scrollTop=edPx; updateNavActive(edPx); }
-    else{
-      const r=fp.scrollTop/Math.max(1,fp.scrollHeight-fp.clientHeight);
-      textarea.scrollTop=r*Math.max(0,textarea.scrollHeight-textarea.clientHeight);
-      updateNavActive(textarea.scrollTop);
-    }
+    syncPaneToEditor(fp);
+    updateNavActive(textarea.scrollTop);
     requestAnimationFrame(()=>{S.syncLock=false;});
   });
-
-  window.addEventListener('resize',()=>{_smCache={pp:null,fp:null};});
 }
 
 // ── AUTO-SAVE ────────────────────────────────────────────────
