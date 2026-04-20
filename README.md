@@ -37,10 +37,21 @@ Entwickelt für die tägliche Arbeit mit Markdown-Dokumenten, strukturierten For
 - ☑ **Interaktive Checkboxen** — direkt in der Vorschau klickbar, sync mit Quelltext
 - 🔗 **Interne Navigation** — Anker-Links im IVZ springen zu Überschriften (GFM-Slug-Algorithmus)
 
+### Intelligentes Editieren
+- **Formatierungsleiste** — Klick-Toolbar für Überschriften, Fett/Kursiv/Code, Listen, Links, Bilder und Tabellen; erscheint automatisch im Editor- und Split-Modus
+- **`Ctrl+B` / `Ctrl+I` / `Ctrl+K`** — Fett, Kursiv, Link per Tastatur; markierter Text wird automatisch eingeschlossen
+- **Tabellen-Editor** — grafischer Dialog: Zeilen/Spalten hinzufügen/entfernen, Spaltenausrichtung (links/zentriert/rechts) per Klick wählen, vorhandene Tabellen erkennen und direkt bearbeiten, TSV/CSV aus Zwischenablage importieren
+- **Smart Enter** — Enter in einer Listenzeile setzt die Liste automatisch fort; Enter auf leerer Listenzeile beendet die Liste
+- **Auto-Pairing** — öffnende Klammern `( [ {` und Backticks werden automatisch geschlossen; markierter Text wird direkt eingeschlossen
+- **TSV/CSV-Einfügen** — Tab-getrennte Daten aus der Zwischenablage werden automatisch zu einer Markdown-Tabelle umgewandelt
+
 ### Formular-Modus
 - ⊟ **`{{typ:name:optionen}}`-Syntax** — Markdown wird zu interaktivem Formular
 - 12 Feldtypen: `text`, `textarea`, `date`, `number`, `select`, `multiselect`, `radio`, `checkbox`, `range`, `button`, `reset`, `note`
 - Werte werden ins **YAML-Frontmatter** gespeichert — persistent in der Datei selbst
+- **Formular-Split-Ansicht** — Editor und gerendertes Formular live nebeneinander; Tipp im Quelltext, Formular aktualisiert sich sofort
+- **Formularfelder-Leiste** — Klick-Toolbar für alle Feldtypen; erscheint automatisch in Formular-Modi
+- **Felder-Konfigurationsdialog** — geführter Dialog mit allen Parametern und Makro-Vorschau für jeden Feldtyp
 
 ### Weitere Funktionen
 - 📅 **Datum & Version** — aktuelles Datum und Versionsnummer ins Frontmatter eintragen, konfigurierbares Format
@@ -71,6 +82,23 @@ xdg-open md-studio.html    # Linux
 
 > **Empfehlung:** Chrome oder Edge für vollen Funktionsumfang (Ordner öffnen, direkt speichern).  
 > Firefox und Safari funktionieren mit leichten Einschränkungen (Speichern per Download).
+
+---
+
+## Tastaturkürzel
+
+| Kürzel | Funktion |
+|--------|----------|
+| `Ctrl+S` | Speichern |
+| `Ctrl+F` | Suchen öffnen/schliessen |
+| `Ctrl+Shift+P` | PDF-Druckdialog |
+| `Ctrl+B` | Fett (markierter Text wird eingeschlossen) |
+| `Ctrl+I` | Kursiv (markierter Text wird eingeschlossen) |
+| `Ctrl+K` | Link-Dialog öffnen |
+| `Tab` (im Editor) | 2 Leerzeichen einrücken; in Tabelle: nächste Zelle |
+| `Shift+Tab` (in Tabelle) | Vorherige Tabellenzelle |
+| `Enter` (in Liste) | Listenstruktur fortsetzen / bei leerer Zeile beenden |
+| `Esc` | Suche / Dialoge / Link-Dialog schliessen |
 
 ---
 
@@ -138,6 +166,7 @@ Die vollständige Benutzeranleitung ist in [`handbuch.md`](handbuch.md) enthalte
 - UI-Beschreibung & Grundstruktur
 - Illustrierte Click-Through-Workflows
 - Alle Funktionen im Detail
+- Formatierungsleiste & Tabellen-Editor
 - Formular-Modus Referenz (alle 12 Feldtypen)
 - Tastaturkürzel
 - Browser-Kompatibilität
