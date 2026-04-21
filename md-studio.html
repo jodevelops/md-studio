@@ -26,19 +26,10 @@
   --bg-btn:#e0e0e0;--bg-btn-h:#d4d4d4;--btn-bd:#c0c0c0;--btn-bd-h:#a8a8a8;
   --nav-bg:#e8e8e8;--nav-h1:#111;--nav-h2:#333;--nav-h3:#555;--nav-item:#555;
 }
-[data-theme="rot"]{
-  --bg-app:#fff;--bg-sb:#fafafa;--bg-tb:#f5f5f5;
-  --bg-ed:#fff;--bg-pv:#fff;
-  --acc:#b91c1c;--acc2:#dc2626;
-  --bd:#e0e0e0;--tui:#1a1a1a;--tdim:#888;--ted:#1a1a1a;
-  --ok:#15803d;--warn:#c2410c;
-  --bg-btn:#f0f0f0;--bg-btn-h:#e4e4e4;--btn-bd:#d5d5d5;--btn-bd-h:#bbb;
-  --nav-bg:#fafafa;--nav-h1:#1a1a1a;--nav-h2:#333;--nav-h3:#666;--nav-item:#666;
-}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);color:var(--tui);display:flex;height:100vh}
-#sidebar{width:var(--sw);min-width:var(--sw);display:flex;flex-direction:column;background:var(--bg-sb);border-right:1px solid var(--bd);overflow:hidden}
+#sidebar{width:var(--sw);min-width:160px;display:flex;flex-direction:column;background:var(--bg-sb);border-right:none;overflow:hidden;flex-shrink:0}
 .sb-head{padding:12px 10px 10px;border-bottom:1px solid var(--bd)}
 .logo{display:flex;align-items:center;gap:7px;margin-bottom:10px}
 .logo-ico{width:22px;height:22px;background:var(--acc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#000;flex-shrink:0}
@@ -79,13 +70,36 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .drop-hint{margin-top:8px;padding:6px 14px;border:1px dashed #2a2a2a;border-radius:20px;font-size:10.5px;color:#333;transition:border-color .15s,color .15s}
 #empty.dov .drop-hint{border-color:var(--acc);color:var(--acc)}
 #ed-pane{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--bg-ed);position:relative}
-#editor{flex:1;width:100%;background:transparent;color:var(--ted);border:none;outline:none;resize:none;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;-webkit-font-smoothing:antialiased;position:relative;z-index:2}
+#editor{flex:1;width:100%;background:transparent;color:var(--ted);border:none;outline:none;resize:none;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;-webkit-font-smoothing:antialiased;position:relative;z-index:3}
+#editor.sh-on{color:transparent;caret-color:var(--ted)}
 #editor::selection{background:rgba(200,134,10,.28)}
-#ed-hl{position:absolute;inset:0;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;white-space:pre-wrap;word-break:break-word;overflow:hidden;pointer-events:none;color:transparent;z-index:1;-webkit-font-smoothing:antialiased;display:none}
+#ed-hl{position:absolute;inset:0;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;white-space:pre-wrap;word-break:break-word;overflow:hidden;pointer-events:none;color:transparent;z-index:2;-webkit-font-smoothing:antialiased;display:none}
+#ed-syntax-hl{position:absolute;inset:0;font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;font-size:13.5px;line-height:1.75;padding:22px 24px;tab-size:2;white-space:pre-wrap;word-break:break-word;overflow:hidden;pointer-events:none;z-index:1;-webkit-font-smoothing:antialiased;display:none}
+.sh-base{color:#ddd8d0}.sh-h-mark{color:#6a9fbf}.sh-h-text{color:#b0d4ea}
+.sh-fm-delim{color:#9880b8}.sh-fm-key{color:#d4a860}.sh-fm-val{color:#b09878}
+.sh-code{color:#d0904a}.sh-code-fence{color:#b87030}.sh-code-body{color:#807870}
+.sh-link{color:#58b0b0}.sh-form{color:#72c060}.sh-quote{color:#88a870}
+.sh-hr{color:#484848}.sh-strike{color:#666}
+.sh-bold-mark{color:#888}.sh-bold{color:#ece4d4}.sh-italic{color:#c8b4e8}
+[data-theme="hell"] .sh-base{color:#222}[data-theme="hell"] .sh-h-mark{color:#1a6a9a}[data-theme="hell"] .sh-h-text{color:#1c5c88}
+[data-theme="hell"] .sh-fm-delim{color:#6040a0}[data-theme="hell"] .sh-fm-key{color:#b06010}[data-theme="hell"] .sh-fm-val{color:#8c6040}
+[data-theme="hell"] .sh-code{color:#b04818}[data-theme="hell"] .sh-code-fence{color:#904020}[data-theme="hell"] .sh-code-body{color:#7a6050}
+[data-theme="hell"] .sh-link{color:#1a7070}[data-theme="hell"] .sh-form{color:#1e7010}[data-theme="hell"] .sh-quote{color:#3a6820}
+[data-theme="hell"] .sh-hr{color:#bbb}[data-theme="hell"] .sh-strike{color:#aaa}
+[data-theme="hell"] .sh-bold-mark{color:#888}[data-theme="hell"] .sh-bold{color:#1a1a1a}[data-theme="hell"] .sh-italic{color:#502090}
 #divider{width:5px;background:var(--bd);cursor:col-resize;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
 #divider::after{content:'';width:2px;height:32px;background:#333;border-radius:1px}
 #divider:hover,#divider.drag{background:rgba(200,134,10,.4)}
 #divider:hover::after,#divider.drag::after{background:var(--acc)}
+.sb-divider{width:5px;background:var(--bd);cursor:col-resize;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--bd)}
+.sb-divider::after{content:'';width:2px;height:32px;background:#333;border-radius:1px}
+.sb-divider:hover,.sb-divider.drag{background:rgba(200,134,10,.4)}
+.sb-divider:hover::after,.sb-divider.drag::after{background:var(--acc)}
+.nav-divider{width:5px;background:var(--bd);cursor:col-resize;flex-shrink:0;position:relative;align-items:center;justify-content:center;display:none}
+.nav-divider.vis{display:flex}
+.nav-divider::after{content:'';width:2px;height:32px;background:#333;border-radius:1px}
+.nav-divider:hover,.nav-divider.drag{background:rgba(200,134,10,.4)}
+.nav-divider:hover::after,.nav-divider.drag::after{background:var(--acc)}
 #prev-pane,#form-pane{min-width:0;overflow-y:auto;background:var(--bg-pv)}
 #prev-pane::-webkit-scrollbar,#form-pane::-webkit-scrollbar{width:6px}
 #prev-pane::-webkit-scrollbar-track,#form-pane::-webkit-scrollbar-track{background:#f0ebe0}
@@ -199,13 +213,13 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 #toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(8px);background:#1e1e1e;border:1px solid #2e2e2e;color:#eee;padding:7px 16px;border-radius:20px;font-size:11.5px;z-index:200;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ── FORMATTING BAR ── */
-#fmt-bar{height:36px;background:var(--bg-tb);border-bottom:1px solid var(--bd);display:none;align-items:center;padding:0 6px;gap:1px;flex-shrink:0;overflow-x:auto}
+#fmt-bar{height:44px;background:var(--bg-tb);border-bottom:1px solid var(--bd);display:none;align-items:center;padding:0 8px;gap:2px;flex-shrink:0;overflow-x:auto}
 #fmt-bar::-webkit-scrollbar{height:0}
 #fmt-bar.vis{display:flex}
-.fb{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;background:transparent;border:1px solid transparent;color:var(--tui);font-size:12px;cursor:pointer;border-radius:4px;transition:all .12s;flex-shrink:0;padding:0 6px;font-family:'Cascadia Code','Fira Code',monospace;line-height:1}
+.fb{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;background:transparent;border:1px solid transparent;color:var(--tui);font-size:13px;cursor:pointer;border-radius:5px;transition:all .12s;flex-shrink:0;padding:0 9px;font-family:'Cascadia Code','Fira Code',monospace;line-height:1}
 .fb:hover{background:var(--bg-btn);border-color:var(--btn-bd);color:var(--tui)}
 .fb.p{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
-.fb-sep{width:1px;height:18px;background:var(--bd);margin:0 3px;flex-shrink:0}
+.fb-sep{width:1px;height:22px;background:var(--bd);margin:0 4px;flex-shrink:0}
 /* ── TABLE EDITOR MODAL ── */
 #m-table .modal{min-width:min(680px,94vw);max-width:min(820px,97vw);max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
 .te-hd{padding:13px 18px 10px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -240,13 +254,13 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 #l-x2{background:transparent;border:none;color:#444;cursor:pointer;font-size:15px;line-height:1;padding:0 3px}
 #l-x2:hover{color:#fff}
 /* ── FORM FIELDS BAR ── */
-#ff-bar{height:36px;background:#091409;border-bottom:1px solid #1a2a1a;display:none;align-items:center;padding:0 6px;gap:1px;flex-shrink:0;overflow-x:auto}
+#ff-bar{height:44px;background:#081208;border-bottom:1px solid #1a2a1a;display:none;align-items:center;padding:0 8px;gap:2px;flex-shrink:0;overflow-x:auto}
 #ff-bar::-webkit-scrollbar{height:0}
 #ff-bar.vis{display:flex}
-.ff-tb{display:inline-flex;align-items:center;justify-content:center;height:26px;background:transparent;border:1px solid transparent;color:#7a9a7a;font-size:11px;cursor:pointer;border-radius:4px;transition:all .12s;flex-shrink:0;padding:0 8px;font-family:system-ui,sans-serif;white-space:nowrap;gap:3px;line-height:1}
+.ff-tb{display:inline-flex;align-items:center;justify-content:center;height:32px;background:transparent;border:1px solid transparent;color:#7aaa7a;font-size:12px;cursor:pointer;border-radius:5px;transition:all .12s;flex-shrink:0;padding:0 10px;font-family:system-ui,sans-serif;white-space:nowrap;gap:4px;line-height:1}
 .ff-tb:hover{background:#0e240e;border-color:#2a4a2a;color:#aaccaa}
-.ff-tb-sep{width:1px;height:18px;background:#1a2a1a;margin:0 3px;flex-shrink:0}
-.ff-tb-lbl{font-size:10px;color:#3a5a3a;padding:0 5px;white-space:nowrap;flex-shrink:0;font-family:system-ui,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ff-tb-sep{width:1px;height:22px;background:#1a2a1a;margin:0 4px;flex-shrink:0}
+.ff-tb-lbl{font-size:11px;color:#4a6a4a;padding:0 6px;white-space:nowrap;flex-shrink:0;font-family:system-ui,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
 /* ── FIELD DIALOG ── */
 #m-ffield .modal{min-width:380px;max-width:500px}
 #m-ffield .modal h3{margin-bottom:10px}
@@ -261,7 +275,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .ffd-hint{font-size:10px;color:#3a3a3a;line-height:1.5}
 .ffd-prev{margin-top:2px;padding:5px 9px;background:#0d1a0d;border:1px solid #1a2a1a;border-radius:3px;font-family:'Cascadia Code','Fira Code',monospace;font-size:11.5px;color:#8ab88a;min-height:24px;word-break:break-all}
 /* ── NAV PANE (right outline sidebar) ── */
-#nav-pane{width:192px;min-width:192px;background:var(--nav-bg);border-left:1px solid var(--bd);display:none;flex-direction:column;overflow:hidden;flex-shrink:0}
+#nav-pane{width:192px;min-width:140px;background:var(--nav-bg);border-left:none;display:none;flex-direction:column;overflow:hidden;flex-shrink:0}
 #nav-pane.vis{display:flex}
 .np-head{padding:7px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--tdim);flex-shrink:0}
 .np-x{background:transparent;border:none;color:var(--tdim);cursor:pointer;font-size:15px;line-height:1;padding:1px 3px;border-radius:3px}
@@ -276,25 +290,32 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .np-h2{padding-left:18px;color:var(--nav-h2)}
 .np-h3{padding-left:26px;color:var(--nav-h3);font-size:10.5px}
 .np-empty{padding:18px 10px;font-size:11px;color:var(--tdim);text-align:center}
-/* ── THEME-AWARE: light themes need some modal/cheat overrides ── */
-[data-theme="hell"] .modal,[data-theme="rot"] .modal{background:#fff;border-color:var(--bd)}
-[data-theme="hell"] .modal h3,[data-theme="rot"] .modal h3{color:var(--tui)}
-[data-theme="hell"] .modal input[type=text],[data-theme="rot"] .modal input[type=text]{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
-[data-theme="hell"] .modal label,[data-theme="rot"] .modal label{color:var(--tdim)}
-[data-theme="hell"] .m-act button,[data-theme="rot"] .m-act button{background:var(--bg-btn);border-color:var(--btn-bd);color:var(--tui)}
-[data-theme="hell"] .m-act button:hover,[data-theme="rot"] .m-act button:hover{background:var(--bg-btn-h)}
-[data-theme="hell"] #cs-body,[data-theme="rot"] #cs-body{background:var(--bg-ed)}
-[data-theme="hell"] .cs-sy,[data-theme="rot"] .cs-sy{background:var(--bg-btn);color:var(--tui)}
-[data-theme="hell"] .cs-ou,[data-theme="rot"] .cs-ou{background:var(--bg-ed);color:var(--ted)}
-[data-theme="hell"] #cs-fi,[data-theme="rot"] #cs-fi{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
-[data-theme="hell"] .csg-t,[data-theme="rot"] .csg-t{color:var(--acc)}
-[data-theme="hell"] .cs-hd,[data-theme="rot"] .cs-hd{background:#fff;border-color:var(--bd)}
-[data-theme="hell"] #cs-sw,[data-theme="rot"] #cs-sw{background:#fff;border-color:var(--bd)}
-[data-theme="hell"] .te-cell,[data-theme="rot"] .te-cell{background:var(--bg-ed);color:var(--ted)}
-[data-theme="hell"] .te-tbl th,[data-theme="hell"] .te-tbl td,[data-theme="rot"] .te-tbl th,[data-theme="rot"] .te-tbl td{border-color:var(--bd)}
-[data-theme="hell"] .ffd-in,[data-theme="rot"] .ffd-in{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
-[data-theme="hell"] .ffd-ta,[data-theme="rot"] .ffd-ta{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
-[data-theme="hell"] .te-asel,[data-theme="rot"] .te-asel{background:var(--bg-ed);border-color:var(--bd);color:var(--tui)}
+/* ── THEME-AWARE: light (sonnig) theme modal/cheat overrides ── */
+[data-theme="hell"] .modal{background:#fff;border-color:var(--bd)}
+[data-theme="hell"] .modal h3{color:var(--tui)}
+[data-theme="hell"] .modal input[type=text]{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
+[data-theme="hell"] .modal label{color:var(--tdim)}
+[data-theme="hell"] .m-act button{background:var(--bg-btn);border-color:var(--btn-bd);color:var(--tui)}
+[data-theme="hell"] .m-act button:hover{background:var(--bg-btn-h)}
+[data-theme="hell"] #cs-body{background:var(--bg-ed)}
+[data-theme="hell"] .cs-sy{background:var(--bg-btn);color:var(--tui)}
+[data-theme="hell"] .cs-ou{background:var(--bg-ed);color:var(--ted)}
+[data-theme="hell"] #cs-fi{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
+[data-theme="hell"] .csg-t{color:var(--acc)}
+[data-theme="hell"] .cs-hd{background:#fff;border-color:var(--bd)}
+[data-theme="hell"] #cs-sw{background:#fff;border-color:var(--bd)}
+[data-theme="hell"] .te-cell{background:var(--bg-ed);color:var(--ted)}
+[data-theme="hell"] .te-tbl th,[data-theme="hell"] .te-tbl td{border-color:var(--bd)}
+[data-theme="hell"] .ffd-in{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
+[data-theme="hell"] .ffd-ta{background:var(--bg-ed);border-color:var(--bd);color:var(--ted)}
+[data-theme="hell"] .te-asel{background:var(--bg-ed);border-color:var(--bd);color:var(--tui)}
+[data-theme="hell"] #ff-bar{background:#eef4ee;border-bottom-color:#c8dcc8}
+[data-theme="hell"] .ff-tb{color:#2a6a2a}
+[data-theme="hell"] .ff-tb:hover{background:#d8ecd8;border-color:#a0c8a0;color:#1a4a1a}
+[data-theme="hell"] .ff-tb-sep{background:#c0d8c0}
+[data-theme="hell"] .ff-tb-lbl{color:#5a8a5a}
+[data-theme="hell"] .sb-divider,.nav-divider{background:var(--bd)}
+[data-theme="hell"] .sb-divider::after,.nav-divider::after{background:#aaa}
 @media print{
   html,body{height:auto!important;overflow:visible!important;display:block!important}
   #sidebar,#toolbar,#status,#ed-pane,#divider,#search-bar,#form-pane,.ovl,#empty,#toast{display:none!important}
@@ -326,6 +347,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
   <div id="file-list"><div style="padding:18px 12px;font-size:11.5px;color:#333;text-align:center;line-height:1.6">Ordner &#246;ffnen oder<br>Dateien laden / Drag&amp;Drop</div></div>
   <div class="sb-foot">MD Studio &middot; lokal &amp; offline</div>
 </div>
+<div class="sb-divider" id="sb-divider"></div>
 <div id="main">
   <div id="toolbar">
     <span class="fn" id="fname">Keine Datei</span>
@@ -398,10 +420,11 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
       <p>Ordner &#246;ffnen oder Markdown-Dateien laden</p>
       <div class="drop-hint">oder .md Dateien hier ablegen</div>
     </div>
-    <div id="ed-pane" style="display:none"><div id="ed-hl" aria-hidden="true"></div><textarea id="editor" spellcheck="false" placeholder="Markdown hier eingeben..."></textarea></div>
+    <div id="ed-pane" style="display:none"><div id="ed-syntax-hl" aria-hidden="true"></div><div id="ed-hl" aria-hidden="true"></div><textarea id="editor" spellcheck="false" placeholder="Markdown hier eingeben..."></textarea></div>
     <div id="divider" style="display:none"></div>
     <div id="prev-pane" style="display:none"><div id="preview" class="mdb"></div></div>
     <div id="form-pane" style="display:none"><div id="form-content" class="mdb"></div></div>
+    <div class="nav-divider" id="nav-divider"></div>
     <div id="nav-pane">
       <div class="np-head"><span>Dokument</span><button class="np-x" onclick="toggleNav()" title="Navigator schlie&szlig;en">&#x2715;</button></div>
       <div id="nav-list"><div class="np-empty">Keine Datei ge&#246;ffnet</div></div>
@@ -847,7 +870,7 @@ function openFile(idx){
   const f=S.files[idx];
   ed().value=f.content;
   $('fname').textContent=f.name;
-  renderPreview(); updateStats(); renderList(); showWork();
+  renderPreview(); updateStats(); renderList(); showWork(); renderEdSyntax();
   if(S.view==='form'||S.view==='form-split') renderForm();
 }
 
@@ -1071,6 +1094,89 @@ function initDrag(){
   document.addEventListener('mouseup',()=>{
     if(S.dragging){S.dragging=false;$('divider').classList.remove('drag');document.body.style.cssText='';}
   });
+}
+
+// ── SIDEBAR DRAG ─────────────────────────────────────────────
+function initSbDrag(){
+  const dv=$('sb-divider'), sb=$('sidebar');
+  let dragging=false;
+  dv.addEventListener('mousedown',e=>{
+    dragging=true; dv.classList.add('drag');
+    document.body.style.cssText='cursor:col-resize;user-select:none'; e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    const w=Math.max(160,Math.min(400,e.clientX));
+    sb.style.width=w+'px';
+  });
+  document.addEventListener('mouseup',()=>{
+    if(dragging){dragging=false;dv.classList.remove('drag');document.body.style.cssText='';}
+  });
+}
+
+// ── NAV DRAG ─────────────────────────────────────────────────
+function initNavDrag(){
+  const dv=$('nav-divider'), np=$('nav-pane');
+  let dragging=false;
+  dv.addEventListener('mousedown',e=>{
+    dragging=true; dv.classList.add('drag');
+    document.body.style.cssText='cursor:col-resize;user-select:none'; e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    const wa=$('work').getBoundingClientRect();
+    const w=Math.max(140,Math.min(360,wa.right-e.clientX));
+    np.style.width=w+'px';
+  });
+  document.addEventListener('mouseup',()=>{
+    if(dragging){dragging=false;dv.classList.remove('drag');document.body.style.cssText='';}
+  });
+}
+
+// ── EDITOR SYNTAX HIGHLIGHTING ───────────────────────────────
+let _synTimer;
+function renderEdSyntax(){ clearTimeout(_synTimer); _synTimer=setTimeout(_doEdSyntax,80); }
+
+function _doEdSyntax(){
+  const e=ed(), ov=$('ed-syntax-hl');
+  if(!e.value||S.cur<0){ ov.style.display='none'; e.classList.remove('sh-on'); return; }
+  const H=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const sp=(c,s)=>'<span class="'+c+'">'+s+'</span>';
+  const store=[];
+  const ph=s=>{store.push(s);return '\x00'+(store.length-1)+'\x00';};
+  const restore=s=>s.replace(/\x00(\d+)\x00/g,(_,i)=>store[+i]);
+  function inline(raw){
+    let s=H(raw);
+    s=s.replace(/(`+)(.+?)\1/g,(_,bt,code)=>ph(sp('sh-code',bt+code+bt)));
+    s=s.replace(/\{\{[^}]+\}\}/g,m=>ph(sp('sh-form',m)));
+    s=s.replace(/!?\[([^\]]*)\]\([^)]*\)/g,m=>ph(sp('sh-link',m)));
+    s=s.replace(/(\*\*|__)(.+?)\1/g,(_,mk,txt)=>ph(sp('sh-bold-mark',mk)+sp('sh-bold',txt)+sp('sh-bold-mark',mk)));
+    s=s.replace(/(?<![*_])(\*|_)(?![*_ ])(.+?)(?<![*_ ])\1(?![*_])/g,(_,mk,txt)=>ph(sp('sh-italic',mk+txt+mk)));
+    s=s.replace(/~~(.+?)~~/g,(_,txt)=>ph(sp('sh-strike','~~'+txt+'~~')));
+    return restore(s);
+  }
+  const lines=e.value.split('\n');
+  let inFM=false,fmDone=false,inCode=false;
+  const out=lines.map((line,i)=>{
+    if(i===0&&line==='---'){inFM=true;return sp('sh-fm-delim','---');}
+    if(inFM&&!fmDone){
+      if(line==='---'){inFM=false;fmDone=true;return sp('sh-fm-delim','---');}
+      const ci=line.indexOf(':');
+      if(ci>0) return sp('sh-fm-key',H(line.slice(0,ci+1)))+sp('sh-fm-val',H(line.slice(ci+1)));
+      return sp('sh-base',H(line));
+    }
+    if(/^```/.test(line)){inCode=!inCode;return sp('sh-code-fence',H(line));}
+    if(inCode) return sp('sh-code-body',H(line));
+    const hm=line.match(/^(#{1,6})( .+)$/);
+    if(hm) return sp('sh-h-mark',H(hm[1]))+sp('sh-h-text',inline(hm[2]));
+    if(/^>/.test(line)) return sp('sh-quote',inline(line));
+    if(/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) return sp('sh-hr',H(line));
+    return sp('sh-base',inline(line));
+  });
+  ov.innerHTML=out.join('\n');
+  ov.scrollTop=e.scrollTop;
+  ov.style.display='block';
+  e.classList.add('sh-on');
 }
 
 // ── SCROLL SYNC ──────────────────────────────────────────────
@@ -1395,10 +1501,13 @@ $('tb-cheat').onclick  = ()=>showM('m-cheat');
 $('tb-theme').onclick  = cycleTheme;
 $('tb-pdf').onclick    = exportPDF;
 
-ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();});
+ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();renderEdSyntax();if(S.view==='form'||S.view==='form-split') renderForm();});
 ed().addEventListener('keyup',updateCursor);
 ed().addEventListener('click',updateCursor);
-ed().addEventListener('scroll',()=>{const ov=$('ed-hl');if(ov.style.display!=='none') ov.scrollTop=ed().scrollTop;});
+ed().addEventListener('scroll',()=>{
+  const ov=$('ed-hl');if(ov.style.display!=='none') ov.scrollTop=ed().scrollTop;
+  const sv=$('ed-syntax-hl');if(sv.style.display!=='none') sv.scrollTop=ed().scrollTop;
+});
 
 ed().addEventListener('keydown',e=>{
   if(e.key!=='Tab') return;
@@ -1513,8 +1622,10 @@ let _navH=[];
 function toggleNav(){
   const np=$('nav-pane');
   np.classList.toggle('vis');
-  $('tb-nav').classList.toggle('on',np.classList.contains('vis'));
-  if(np.classList.contains('vis')) updateNavPane();
+  const on=np.classList.contains('vis');
+  $('nav-divider').classList.toggle('vis',on);
+  $('tb-nav').classList.toggle('on',on);
+  if(on) updateNavPane();
 }
 
 function updateNavPane(){
@@ -1583,7 +1694,7 @@ function insertTOC(){
 }
 
 // ── THEMES ───────────────────────────────────────────────────
-const THEMES=[{id:'dunkel',lbl:'Dunkel'},{id:'hell',lbl:'Hell'},{id:'rot',lbl:'Rot\u00a0&\u00a0Wei\xDF'}];
+const THEMES=[{id:'dunkel',lbl:'Dunkel'},{id:'hell',lbl:'Sonnig'}];
 let _themeIdx=0;
 
 function cycleTheme(){
@@ -1605,7 +1716,7 @@ try{
   if(saved){const idx=THEMES.findIndex(t=>t.id===saved);if(idx>=0){_themeIdx=idx;_applyTheme(saved);}}
 }catch{}
 
-initDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
+initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
 updateFmtBar(); updateFfBar();
 
 // ── FORMATTING BAR ──────────────────────────────────────────
