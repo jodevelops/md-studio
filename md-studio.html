@@ -853,7 +853,7 @@ async function openFiles(){
 
 function upsert(obj){
   const i=S.files.findIndex(f=>f.name===obj.name);
-  if(i>=0){S.files[i]=obj; if(S.cur===i){ed().value=obj.content;renderPreview();}}
+  if(i>=0){S.files[i]=obj; if(S.cur===i){ed().value=obj.content;renderPreview();renderEdSyntax();}}
   else S.files.push(obj);
 }
 
@@ -1072,7 +1072,7 @@ function setSaved(msg,cls){
 function markMod(){
   if(S.cur<0) return;
   S.files[S.cur].modified=true; S.files[S.cur].content=ed().value;
-  renderList(); setSaved('Ungespeichert','warn');
+  renderList(); setSaved('Ungespeichert','warn'); renderEdSyntax();
 }
 
 // ── SPLIT DRAG ───────────────────────────────────────────────
@@ -1501,7 +1501,7 @@ $('tb-cheat').onclick  = ()=>showM('m-cheat');
 $('tb-theme').onclick  = cycleTheme;
 $('tb-pdf').onclick    = exportPDF;
 
-ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();renderEdSyntax();if(S.view==='form'||S.view==='form-split') renderForm();});
+ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();});
 ed().addEventListener('keyup',updateCursor);
 ed().addEventListener('click',updateCursor);
 ed().addEventListener('scroll',()=>{
