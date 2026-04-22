@@ -1175,8 +1175,21 @@ function _doEdSyntax(){
   });
   ov.innerHTML=out.join('\n');
   ov.scrollTop=e.scrollTop;
+  _syncOvWidth();
   ov.style.display='block';
   e.classList.add('sh-on');
+}
+
+// Keep overlay right edge in sync with textarea scrollbar width so that text
+// wraps at the same column in both the overlay and the textarea. When the
+// textarea has a vertical scrollbar its available text-content width is
+// (offsetWidth - scrollbarWidth), but the overlay at inset:0 uses the full
+// width, causing a line-wrap mismatch that makes the cursor appear to jump.
+function _syncOvWidth(){
+  const ta=ed();
+  if(!ta) return;
+  const sw=ta.offsetWidth-ta.clientWidth;
+  [$('ed-syntax-hl'),$('ed-hl')].forEach(ov=>{if(ov) ov.style.right=sw+'px';});
 }
 
 // ── SCROLL SYNC ──────────────────────────────────────────────
@@ -1718,6 +1731,7 @@ try{
 
 initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
 updateFmtBar(); updateFfBar();
+if(typeof ResizeObserver!=='undefined') new ResizeObserver(_syncOvWidth).observe(ed());
 
 // ── FORMATTING BAR ──────────────────────────────────────────
 function updateFmtBar(){
