@@ -574,6 +574,7 @@ function _render(){
   const {fmHtml, bodyHtml} = parseRender(ed().value);
   pv().innerHTML = fmHtml + bodyHtml;
   activateCB(pv());
+  attachHeadingHandlers(pv());
   updateNavPane();
 }
 
@@ -774,6 +775,7 @@ function renderForm(){
   tmp.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
   addHeadingIds(tmp);
   $('form-content').innerHTML=banner+fmHtml+tmp.innerHTML;
+  attachHeadingHandlers($('form-content'));
   updateNavPane();
 }
 
@@ -1301,28 +1303,20 @@ function initScrollSync(){
 
   textarea.addEventListener('scroll',()=>{
     if(S.syncLock) return;
-    const pane=S.view==='split'?pp:S.view==='form-split'?fp:null;
     updateNavActive(textarea.scrollTop);
-    if(!pane) return;
-    S.syncLock=true;
-    syncEditorToPane(pane);
-    requestAnimationFrame(()=>{S.syncLock=false;});
+    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
   });
 
   pp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='split') return;
-    S.syncLock=true;
-    syncPaneToEditor(pp);
     updateNavActive(textarea.scrollTop);
-    requestAnimationFrame(()=>{S.syncLock=false;});
+    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
   });
 
   fp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='form-split') return;
-    S.syncLock=true;
-    syncPaneToEditor(fp);
     updateNavActive(textarea.scrollTop);
-    requestAnimationFrame(()=>{S.syncLock=false;});
+    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
   });
 }
 
@@ -1688,6 +1682,20 @@ function navJump(i){
       nl.scrollTop=items[i].offsetTop-nl.clientHeight/2+items[i].offsetHeight/2;
   }
   requestAnimationFrame(()=>{S.syncLock=false;});
+}
+// Attach double-click handlers to preview headings to jump both panes to that section
+function attachHeadingHandlers(container){
+  if(!container) return;
+  container.querySelectorAll('h1,h2,h3').forEach(heading=>{
+    heading.style.cursor='pointer';
+    heading.addEventListener('dblclick',()=>{
+      // Find the heading in _navH by matching text content
+      const headingText=heading.textContent?.trim();
+      if(!headingText) return;
+      const idx=_navH?.findIndex(h=>h.txt.trim()===headingText);
+      if(idx>=0) navJump(idx);
+    });
+  });
 }
 
 // ── TOC INSERT ───────────────────────────────────────────────
