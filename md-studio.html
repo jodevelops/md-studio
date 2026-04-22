@@ -1316,20 +1316,31 @@ function initScrollSync(){
     const navH=_navH||[];
     if(!navH.length) return;
     const content=pane===$('prev-pane')?$('preview'):$('form-content');
-    // Find which heading section is at the top of the pane viewport
+    const paneRect=pane.getBoundingClientRect();
+
+    // Find the heading that's currently visible or most recently scrolled past
     let activeIdx=-1;
-    for(let i=navH.length-1;i>=0;i--){
+    let bestOffset=Infinity;
+
+    for(let i=0;i<navH.length;i++){
       const slug=gfmSlug(navH[i].txt);
       try{
         const el=content.querySelector('#'+CSS.escape(slug));
-        // getBoundingClientRect() is already in viewport space, don't add scrollTop
-        // Check if heading has scrolled past the pane top (viewport-relative position <= 0)
-        if(el&&el.getBoundingClientRect().top-pane.getBoundingClientRect().top<=0){
+        if(!el) continue;
+        // Viewport-relative position of heading
+        const offset=el.getBoundingClientRect().top-paneRect.top;
+        // We want the heading that is at or just above the top of the viewport
+        // (largest offset that is <= 0, or if all positive, the smallest positive)
+        if(offset<=0 && offset>bestOffset){
           activeIdx=i;
-          break;
+          bestOffset=offset;
+        } else if(offset>0 && bestOffset===Infinity){
+          activeIdx=i;
+          bestOffset=offset;
         }
       }catch(_){}
     }
+
     // Highlight nav item
     const items=[...$('nav-list').querySelectorAll('.np-item')];
     items.forEach((el,i)=>el.classList.toggle('active',i===activeIdx));
