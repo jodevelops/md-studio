@@ -1310,22 +1310,47 @@ function initScrollSync(){
     }
   }
 
+  // Update nav active based on preview/form pane position (reverse lookup from preview to editor)
+  function updateNavActiveFromPane(pane){
+    if(!$('nav-pane').classList.contains('vis')) return;
+    const navH=_navH||[];
+    if(!navH.length) return;
+    const content=pane===$('prev-pane')?$('preview'):$('form-content');
+    // Find which heading section is at the top of the pane viewport
+    let activeIdx=-1;
+    for(let i=navH.length-1;i>=0;i--){
+      const slug=gfmSlug(navH[i].txt);
+      try{
+        const el=content.querySelector('#'+CSS.escape(slug));
+        if(el&&el.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop<=0){
+          activeIdx=i;
+          break;
+        }
+      }catch(_){}
+    }
+    // Highlight nav item
+    const items=[...$('nav-list').querySelectorAll('.np-item')];
+    items.forEach((el,i)=>el.classList.toggle('active',i===activeIdx));
+    if(activeIdx>=0&&items[activeIdx]){
+      const nl=$('nav-list');
+      if(items[activeIdx].offsetTop<nl.scrollTop||items[activeIdx].offsetTop+items[activeIdx].offsetHeight>nl.scrollTop+nl.clientHeight)
+        nl.scrollTop=items[activeIdx].offsetTop-nl.clientHeight/2+items[activeIdx].offsetHeight/2;
+    }
+  }
+
   textarea.addEventListener('scroll',()=>{
     if(S.syncLock) return;
-    updateNavActive(textarea.scrollTop);
-    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
+    // Editor scroll no longer updates nav pane (prevent confusion)
   });
 
   pp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='split') return;
-    updateNavActive(textarea.scrollTop);
-    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
+    updateNavActiveFromPane(pp);
   });
 
   fp.addEventListener('scroll',()=>{
     if(S.syncLock||S.view!=='form-split') return;
-    updateNavActive(textarea.scrollTop);
-    // Sync scrolling disabled: jumps triggered by nav clicks or double-clicks are preferred
+    updateNavActiveFromPane(fp);
   });
 }
 
@@ -1664,36 +1689,32 @@ function navJump(i){
   const h=_navH[i]; if(!h) return;
   S.syncLock=true;
   const ta=ed();
-  // Position cursor at the heading line
+  // Move cursor to heading line in editor
   const lines=ta.value.split('\n');
   let pos=0;
   for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
   ta.focus();
   ta.setSelectionRange(pos,pos);
-  // Get the helper function from scrollSync scope - fallback inline if needed
-  let lh;
+  // Calculate scrollTop: scroll heading to visible area (1/4 from top for better context)
   const style=getComputedStyle(ta);
-  const lineHeight=parseFloat(style.lineHeight);
-  if(!isNaN(lineHeight)&&lineHeight>0) lh=lineHeight;
-  else {
-    const fs=parseFloat(style.fontSize);
-    lh=!isNaN(fs)&&fs>0?fs*1.5:23;
-  }
-  // Scroll to position the heading line near the top (account for padding)
-  const pb=parseFloat(style.paddingTop)||0;
-  ta.scrollTop=Math.max(0, h.line*lh-pb);
-  // Preview/form: scroll directly to the heading element
+  const lh=parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5||23;
+  const targetScroll=Math.max(0, h.line*lh - ta.clientHeight*0.25);
+  ta.scrollTop=targetScroll;
+
+  // Also scroll preview/form if visible
   const isForm=S.view==='form'||S.view==='form-split';
   const container=isForm?$('form-pane'):$('prev-pane');
   const content=isForm?$('form-content'):$('preview');
-  try{
-    const target=content.querySelector('#'+CSS.escape(gfmSlug(h.txt)));
-    if(target&&container){
-      const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
-      container.scrollTop=Math.max(0,top);
-    }
-  }catch{}
-  // Directly highlight the correct nav item without re-computing from scrollTop
+  if(container&&container.style.display!=='none'){
+    try{
+      const target=content.querySelector('#'+CSS.escape(gfmSlug(h.txt)));
+      if(target){
+        const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
+        container.scrollTop=Math.max(0,top);
+      }
+    }catch{}
+  }
+  // Update nav highlighting
   const items=[...$('nav-list').querySelectorAll('.np-item')];
   items.forEach((el,j)=>el.classList.toggle('active',j===i));
   if(items[i]){
