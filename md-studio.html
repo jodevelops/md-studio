@@ -1735,7 +1735,7 @@ if(typeof ResizeObserver!=='undefined') new ResizeObserver(_syncOvWidth).observe
 
 // ── FORMATTING BAR ──────────────────────────────────────────
 function updateFmtBar(){
-  $('fmt-bar').classList.toggle('vis', S.view==='split'||S.view==='editor');
+  $('fmt-bar').classList.toggle('vis', S.view==='split'||S.view==='editor'||S.view==='form'||S.view==='form-split');
 }
 
 function fmtWrap(before,after,placeholder){
