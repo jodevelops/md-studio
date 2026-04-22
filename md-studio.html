@@ -1283,12 +1283,21 @@ function initScrollSync(){
     textarea.scrollTop=m[si].line*lh+Math.max(0,Math.min(1,pvOff/pvSec))*edSec;
   }
 
+  // Get reliable line height from textarea
+  function getEditorLineHeight(){
+    const style=getComputedStyle(textarea);
+    const lh=parseFloat(style.lineHeight);
+    if(!isNaN(lh)&&lh>0) return lh;
+    const fs=parseFloat(style.fontSize);
+    return !isNaN(fs)&&fs>0?fs*1.5:23;
+  }
+
   // Highlight the nav item for the heading section currently at the editor viewport top.
   function updateNavActive(edPx){
     if(!$('nav-pane').classList.contains('vis')) return;
     const navH=_navH||[];
     if(!navH.length) return;
-    const lh=parseFloat(getComputedStyle(textarea).lineHeight)||23;
+    const lh=getEditorLineHeight();
     const curLine=edPx/lh;
     let idx=-1;
     for(let i=0;i<navH.length;i++){ if(navH[i].line<=curLine) idx=i; else break; }
@@ -1653,15 +1662,26 @@ function updateNavPane(){
 
 function navJump(i){
   const h=_navH[i]; if(!h) return;
-  // Lock sync to prevent scroll events from fighting each other during jump
   S.syncLock=true;
   const ta=ed();
-  const lh=parseFloat(getComputedStyle(ta).lineHeight)||23;
-  // Editor: move cursor and position heading at top of viewport
+  // Position cursor at the heading line
   const lines=ta.value.split('\n');
-  let pos=0; for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
-  ta.focus(); ta.setSelectionRange(pos,pos);
-  ta.scrollTop=h.line*lh;
+  let pos=0;
+  for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
+  ta.focus();
+  ta.setSelectionRange(pos,pos);
+  // Get the helper function from scrollSync scope - fallback inline if needed
+  let lh;
+  const style=getComputedStyle(ta);
+  const lineHeight=parseFloat(style.lineHeight);
+  if(!isNaN(lineHeight)&&lineHeight>0) lh=lineHeight;
+  else {
+    const fs=parseFloat(style.fontSize);
+    lh=!isNaN(fs)&&fs>0?fs*1.5:23;
+  }
+  // Scroll to position the heading line near the top (account for padding)
+  const pb=parseFloat(style.paddingTop)||0;
+  ta.scrollTop=Math.max(0, h.line*lh-pb);
   // Preview/form: scroll directly to the heading element
   const isForm=S.view==='form'||S.view==='form-split';
   const container=isForm?$('form-pane'):$('prev-pane');
@@ -1689,10 +1709,15 @@ function attachHeadingHandlers(container){
   container.querySelectorAll('h1,h2,h3').forEach(heading=>{
     heading.style.cursor='pointer';
     heading.addEventListener('dblclick',()=>{
-      // Find the heading in _navH by matching text content
-      const headingText=heading.textContent?.trim();
-      if(!headingText) return;
-      const idx=_navH?.findIndex(h=>h.txt.trim()===headingText);
+      // Use the heading's ID to find the matching _navH entry
+      // The ID is generated via gfmSlug() so we can reverse-match it
+      const headingId=heading.id||'';
+      if(!headingId) return;
+      // Find nav item with matching slug
+      const idx=_navH?.findIndex(h=>{
+        const slug=gfmSlug(h.txt);
+        return slug===headingId||slug===headingId.replace(/-\d+$/,'');
+      });
       if(idx>=0) navJump(idx);
     });
   });
