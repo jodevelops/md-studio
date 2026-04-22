@@ -1744,15 +1744,22 @@ function attachHeadingHandlers(container){
     heading.style.cursor='pointer';
     heading.addEventListener('dblclick',()=>{
       // Use the heading's ID to find the matching _navH entry
-      // The ID is generated via gfmSlug() so we can reverse-match it
       const headingId=heading.id||'';
-      if(!headingId) return;
+      console.log('Double-click heading:', heading.textContent, 'ID:', headingId, '_navH:', _navH);
+      if(!headingId){
+        console.warn('No ID on heading:', heading.textContent);
+        return;
+      }
       // Find nav item with matching slug
       const idx=_navH?.findIndex(h=>{
         const slug=gfmSlug(h.txt);
-        return slug===headingId||slug===headingId.replace(/-\d+$/,'');
+        const match=slug===headingId||slug===headingId.replace(/-\d+$/,'');
+        if(!match) console.log('  Checking:', h.txt, '→', slug, 'vs', headingId, '=', match);
+        return match;
       });
+      console.log('Found index:', idx);
       if(idx>=0) navJump(idx);
+      else console.warn('Could not find matching nav heading');
     });
   });
 }
