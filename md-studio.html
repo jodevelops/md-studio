@@ -1322,7 +1322,9 @@ function initScrollSync(){
       const slug=gfmSlug(navH[i].txt);
       try{
         const el=content.querySelector('#'+CSS.escape(slug));
-        if(el&&el.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop<=0){
+        // getBoundingClientRect() is already in viewport space, don't add scrollTop
+        // Check if heading has scrolled past the pane top (viewport-relative position <= 0)
+        if(el&&el.getBoundingClientRect().top-pane.getBoundingClientRect().top<=0){
           activeIdx=i;
           break;
         }
