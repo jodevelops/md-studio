@@ -1699,43 +1699,62 @@ function updateNavPane(){
 }
 
 function navJump(i){
-  const h=_navH[i]; if(!h) return;
-  S.syncLock=true;
-  const ta=ed();
-  // Move cursor to heading line in editor
-  const lines=ta.value.split('\n');
-  let pos=0;
-  for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
-  ta.focus();
-  ta.setSelectionRange(pos,pos);
-  // Calculate scrollTop: scroll heading to visible area (1/4 from top for better context)
-  const style=getComputedStyle(ta);
-  const lh=parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5||23;
-  const targetScroll=Math.max(0, h.line*lh - ta.clientHeight*0.25);
-  ta.scrollTop=targetScroll;
+  try{
+    const h=_navH[i];
+    if(!h){
+      console.error('navJump: no heading at index', i);
+      return;
+    }
+    console.log('navJump to index', i, 'heading:', h.txt, 'line:', h.line);
+    S.syncLock=true;
+    const ta=ed();
+    // Move cursor to heading line in editor
+    const lines=ta.value.split('\n');
+    let pos=0;
+    for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
+    ta.focus();
+    ta.setSelectionRange(pos,pos);
+    // Calculate scrollTop: scroll heading to visible area (1/4 from top for better context)
+    const style=getComputedStyle(ta);
+    const lh=parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5||23;
+    const targetScroll=Math.max(0, h.line*lh - ta.clientHeight*0.25);
+    console.log('Editor scroll to:', targetScroll, '(line', h.line, 'lh', lh, 'viewport', ta.clientHeight);
+    ta.scrollTop=targetScroll;
 
-  // Also scroll preview/form if visible
-  const isForm=S.view==='form'||S.view==='form-split';
-  const container=isForm?$('form-pane'):$('prev-pane');
-  const content=isForm?$('form-content'):$('preview');
-  if(container&&container.style.display!=='none'){
-    try{
-      const target=content.querySelector('#'+CSS.escape(gfmSlug(h.txt)));
-      if(target){
-        const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
-        container.scrollTop=Math.max(0,top);
+    // Also scroll preview/form if visible
+    const isForm=S.view==='form'||S.view==='form-split';
+    const container=isForm?$('form-pane'):$('prev-pane');
+    const content=isForm?$('form-content'):$('preview');
+    console.log('View:', S.view, 'Form:', isForm, 'Container display:', container?.style.display);
+    if(container&&container.style.display!=='none'){
+      try{
+        const slug=gfmSlug(h.txt);
+        console.log('Looking for heading ID:', slug);
+        const target=content.querySelector('#'+CSS.escape(slug));
+        if(target){
+          const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
+          console.log('Found target, scrolling preview to:', top);
+          container.scrollTop=Math.max(0,top);
+        }else{
+          console.warn('Could not find heading element with ID:', slug);
+        }
+      }catch(e){
+        console.error('Error scrolling preview:', e);
       }
-    }catch{}
+    }
+    // Update nav highlighting
+    const items=[...$('nav-list').querySelectorAll('.np-item')];
+    items.forEach((el,j)=>el.classList.toggle('active',j===i));
+    if(items[i]){
+      const nl=$('nav-list');
+      if(items[i].offsetTop<nl.scrollTop||items[i].offsetTop+items[i].offsetHeight>nl.scrollTop+nl.clientHeight)
+        nl.scrollTop=items[i].offsetTop-nl.clientHeight/2+items[i].offsetHeight/2;
+    }
+    requestAnimationFrame(()=>{S.syncLock=false;});
+  }catch(e){
+    console.error('navJump error:', e);
+    S.syncLock=false;
   }
-  // Update nav highlighting
-  const items=[...$('nav-list').querySelectorAll('.np-item')];
-  items.forEach((el,j)=>el.classList.toggle('active',j===i));
-  if(items[i]){
-    const nl=$('nav-list');
-    if(items[i].offsetTop<nl.scrollTop||items[i].offsetTop+items[i].offsetHeight>nl.scrollTop+nl.clientHeight)
-      nl.scrollTop=items[i].offsetTop-nl.clientHeight/2+items[i].offsetHeight/2;
-  }
-  requestAnimationFrame(()=>{S.syncLock=false;});
 }
 // Attach double-click handlers to preview headings to jump both panes to that section
 function attachHeadingHandlers(container){
