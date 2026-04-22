@@ -1701,11 +1701,7 @@ function updateNavPane(){
 function navJump(i){
   try{
     const h=_navH[i];
-    if(!h){
-      console.error('navJump: no heading at index', i);
-      return;
-    }
-    console.log('navJump to index', i, 'heading:', h.txt, 'line:', h.line);
+    if(!h) return;
     S.syncLock=true;
     const ta=ed();
     // Move cursor to heading line in editor
@@ -1718,29 +1714,21 @@ function navJump(i){
     const style=getComputedStyle(ta);
     const lh=parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5||23;
     const targetScroll=Math.max(0, h.line*lh - ta.clientHeight*0.25);
-    console.log('Editor scroll to:', targetScroll, '(line', h.line, 'lh', lh, 'viewport', ta.clientHeight);
     ta.scrollTop=targetScroll;
 
     // Also scroll preview/form if visible
     const isForm=S.view==='form'||S.view==='form-split';
     const container=isForm?$('form-pane'):$('prev-pane');
     const content=isForm?$('form-content'):$('preview');
-    console.log('View:', S.view, 'Form:', isForm, 'Container display:', container?.style.display);
     if(container&&container.style.display!=='none'){
       try{
         const slug=gfmSlug(h.txt);
-        console.log('Looking for heading ID:', slug);
         const target=content.querySelector('#'+CSS.escape(slug));
         if(target){
           const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
-          console.log('Found target, scrolling preview to:', top);
           container.scrollTop=Math.max(0,top);
-        }else{
-          console.warn('Could not find heading element with ID:', slug);
         }
-      }catch(e){
-        console.error('Error scrolling preview:', e);
-      }
+      }catch(e){}
     }
     // Update nav highlighting
     const items=[...$('nav-list').querySelectorAll('.np-item')];
@@ -1752,7 +1740,6 @@ function navJump(i){
     }
     requestAnimationFrame(()=>{S.syncLock=false;});
   }catch(e){
-    console.error('navJump error:', e);
     S.syncLock=false;
   }
 }
@@ -1764,24 +1751,13 @@ function attachHeadingHandlers(container){
     heading.addEventListener('dblclick',()=>{
       // Use the heading's ID to find the matching _navH entry
       const headingId=heading.id||'';
-      console.log('Double-click heading:', heading.textContent, 'ID:', headingId, '_navH:', _navH);
-      if(!headingId){
-        console.warn('No ID on heading:', heading.textContent);
-        return;
-      }
+      if(!headingId) return;
       // Find nav item with matching slug
       const idx=_navH?.findIndex(h=>{
         const slug=gfmSlug(h.txt);
-        const match=slug===headingId||slug===headingId.replace(/-\d+$/,'');
-        if(!match) console.log('  Checking:', h.txt, '→', slug, 'vs', headingId, '=', match);
-        return match;
+        return slug===headingId||slug===headingId.replace(/-\d+$/,'');
       });
-      console.log('Found index:', idx);
-      if(idx>=0){
-        console.log('Calling navJump with idx:', idx);
-        window.navJump(idx);
-      }
-      else console.warn('Could not find matching nav heading');
+      if(idx>=0) window.navJump(idx);
     });
   });
 }
