@@ -1777,7 +1777,10 @@ function attachHeadingHandlers(container){
         return match;
       });
       console.log('Found index:', idx);
-      if(idx>=0) navJump(idx);
+      if(idx>=0){
+        console.log('Calling navJump with idx:', idx);
+        window.navJump(idx);
+      }
       else console.warn('Could not find matching nav heading');
     });
   });
