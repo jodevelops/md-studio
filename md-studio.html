@@ -1690,6 +1690,30 @@ function updateNavPane(){
   list.innerHTML=_navH.map((h,i)=>'<div class="np-item np-h'+h.lv+'" onclick="navJump('+i+')" title="'+E(h.txt)+'">'+E(h.txt)+'</div>').join('');
 }
 
+// Measures the true rendered scroll position for a logical line number.
+// A mirror div with identical CSS handles word-wrap correctly on any screen width.
+function _editorLineScrollTop(ta, lineNum){
+  if(lineNum<=0) return 0;
+  const cs=getComputedStyle(ta);
+  const d=document.createElement('div');
+  d.style.cssText=
+    'position:absolute;top:-9999px;left:-9999px;visibility:hidden;overflow:hidden;'+
+    'width:'+ta.clientWidth+'px;'+
+    'white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;'+
+    'font-family:'+cs.fontFamily+';font-size:'+cs.fontSize+';font-weight:'+cs.fontWeight+';'+
+    'line-height:'+cs.lineHeight+';letter-spacing:'+cs.letterSpacing+';'+
+    'padding:'+cs.paddingTop+' '+cs.paddingRight+' '+cs.paddingBottom+' '+cs.paddingLeft+';'+
+    'box-sizing:'+cs.boxSizing+';tab-size:'+cs.tabSize+';';
+  d.textContent=ta.value.split('\n').slice(0,lineNum).join('\n');
+  const sp=document.createElement('span');
+  sp.textContent='​'; // zero-width space as marker
+  d.appendChild(sp);
+  document.body.appendChild(d);
+  const top=sp.offsetTop;
+  document.body.removeChild(d);
+  return Math.max(0,top);
+}
+
 function navJump(i){
   try{
     const h=_navH[i];
@@ -1701,10 +1725,8 @@ function navJump(i){
     for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
     ta.focus();
     ta.setSelectionRange(pos,pos);
-    // Scroll editor so the heading line is at the top of the viewport
-    const taStyle=getComputedStyle(ta);
-    const lh=parseFloat(taStyle.lineHeight)||parseFloat(taStyle.fontSize)*1.5||23;
-    ta.scrollTop=Math.max(0, h.line*lh);
+    // Scroll editor: use mirror-div measurement for word-wrap accuracy
+    ta.scrollTop=_editorLineScrollTop(ta, h.line);
 
     // Scroll preview pane if it's currently displayed
     const pp=$('prev-pane'), fp=$('form-pane');
