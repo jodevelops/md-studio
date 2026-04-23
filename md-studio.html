@@ -1694,8 +1694,6 @@ function navJump(i){
   try{
     const h=_navH[i];
     if(!h) return;
-    // Lock scroll sync during the jump to prevent event cascades
-    S.syncLock=true;
     const ta=ed();
     // Position cursor at the heading line in editor
     const lines=ta.value.split('\n');
@@ -1713,6 +1711,7 @@ function navJump(i){
     const showPreview=(S.view==='split'||S.view==='preview');
     const showForm=(S.view==='form-split'||S.view==='form');
     if(showPreview||showForm){
+      S.syncLock=true; // Only lock when actually scrolling preview
       const container=showForm?fp:pp;
       const content=showForm?$('form-content'):$('preview');
       try{
@@ -1723,9 +1722,14 @@ function navJump(i){
           const top=target.getBoundingClientRect().top-container.getBoundingClientRect().top+container.scrollTop;
           container.scrollTop=Math.max(0,top);
         }
-      }catch(e){}
+      }catch(e){
+        console.error('Preview scroll error:', e);
+      }
+      // Shorter sync lock: just one frame
+      requestAnimationFrame(()=>{ S.syncLock=false; });
     }
-    // Highlight the clicked nav item
+
+    // Highlight the clicked nav item (always do this)
     const items=[...$('nav-list').querySelectorAll('.np-item')];
     items.forEach((el,j)=>el.classList.toggle('active',j===i));
     if(items[i]){
@@ -1733,9 +1737,8 @@ function navJump(i){
       if(items[i].offsetTop<nl.scrollTop||items[i].offsetTop+items[i].offsetHeight>nl.scrollTop+nl.clientHeight)
         nl.scrollTop=items[i].offsetTop-nl.clientHeight/2+items[i].offsetHeight/2;
     }
-    // Release sync lock after a short delay to allow scroll events to settle
-    setTimeout(()=>{S.syncLock=false;},100);
   }catch(e){
+    console.error('navJump error:', e);
     S.syncLock=false;
   }
 }
