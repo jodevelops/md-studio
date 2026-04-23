@@ -1292,59 +1292,15 @@ function initScrollSync(){
     return !isNaN(fs)&&fs>0?fs*1.5:23;
   }
 
-  // Measure the actual rendered scroll position for a given logical line number.
-  // Uses a mirror div to account for word-wrap on narrow panes/screens.
-  function getEditorScrollTopForLine(lineNum){
-    if(lineNum<=0) return 0;
-    const style=getComputedStyle(textarea);
-    const mirror=document.createElement('div');
-    // Copy all layout-relevant styles from textarea
-    ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing',
-     'wordSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft',
-     'borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth',
-     'boxSizing','whiteSpace','wordWrap','overflowWrap','tabSize'].forEach(p=>{
-      mirror.style[p]=style[p];
-    });
-    mirror.style.width=textarea.clientWidth+'px';
-    mirror.style.position='absolute';
-    mirror.style.visibility='hidden';
-    mirror.style.top='0';
-    mirror.style.left='-99999px';
-    mirror.style.height='auto';
-    mirror.style.overflow='hidden';
-    mirror.style.whiteSpace='pre-wrap';
-    mirror.style.wordBreak='break-word';
-    // Fill with text up to (but not including) the target line
-    const lines=textarea.value.split('\n');
-    const textBefore=lines.slice(0,lineNum).join('\n');
-    mirror.textContent=textBefore;
-    // Marker span to measure position
-    const marker=document.createElement('span');
-    marker.textContent='​'; // zero-width space
-    mirror.appendChild(marker);
-    document.body.appendChild(mirror);
-    const top=marker.offsetTop;
-    document.body.removeChild(mirror);
-    return Math.max(0,top);
-  }
-
-  function buildEditorHeadingTops(){
-    _editorHeadingTops=(_navH||[]).map(h=>getEditorScrollTopForLine(h.line));
-  }
-
   // Highlight the nav item for the heading section currently at the editor viewport top.
-  // Uses measured pixel positions to handle word-wrap on narrow screens correctly.
   function updateNavActive(edScrollTop){
     if(!$('nav-pane').classList.contains('vis')) return;
     const navH=_navH||[];
     if(!navH.length) return;
-    if(!_editorHeadingTops||_editorHeadingTops.length!==navH.length) buildEditorHeadingTops();
-    const threshold=10;
+    const lh=getEditorLineHeight();
+    const curLine=edScrollTop/lh;
     let idx=-1;
-    for(let i=0;i<navH.length;i++){
-      if(_editorHeadingTops[i]<=edScrollTop+threshold) idx=i;
-      else break;
-    }
+    for(let i=0;i<navH.length;i++){ if(navH[i].line<=curLine) idx=i; else break; }
     highlightNavItem(idx);
   }
 
@@ -1708,7 +1664,6 @@ if(!S.fsaOk){
 
 // ── NAV PANE ─────────────────────────────────────────────────
 let _navH=[];
-let _editorHeadingTops=null; // measured pixel positions per heading (invalidated on edit/resize)
 
 function toggleNav(){
   const np=$('nav-pane');
@@ -1723,7 +1678,6 @@ function updateNavPane(){
   // Always rebuild _navH so scroll sync has anchor data regardless of nav visibility.
   const lines=S.cur>=0?ed().value.split('\n'):[];
   _navH=[];
-  _editorHeadingTops=null; // invalidate measured position cache
   lines.forEach((l,i)=>{
     const m=l.match(/^(#{1,3})\s+(.+)/);
     if(m) _navH.push({lv:m[1].length,txt:m[2].trim().replace(/[*_~`[\]]/g,''),line:i});
@@ -1749,8 +1703,9 @@ function navJump(i){
     for(let j=0;j<h.line;j++) pos+=lines[j].length+1;
     ta.focus();
     ta.setSelectionRange(pos,pos);
-    // Use mirror-div measurement to get true rendered position (accounts for word-wrap)
-    ta.scrollTop=getEditorScrollTopForLine(h.line);
+    // Scroll editor so the heading line is at the top of the viewport
+    const lh=getEditorLineHeight();
+    ta.scrollTop=Math.max(0, h.line*lh);
 
     // Scroll preview pane if it's currently displayed
     const pp=$('prev-pane'), fp=$('form-pane');
@@ -1845,12 +1800,7 @@ try{
 
 initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
 updateFmtBar(); updateFfBar();
-if(typeof ResizeObserver!=='undefined'){
-  new ResizeObserver(_syncOvWidth).observe(ed());
-  // Invalidate editor heading position cache whenever the editor pane is resized
-  new ResizeObserver(()=>{ _editorHeadingTops=null; }).observe($('ed-pane'));
-}
-window.addEventListener('resize',()=>{ _editorHeadingTops=null; });
+if(typeof ResizeObserver!=='undefined') new ResizeObserver(_syncOvWidth).observe(ed());
 
 // ── FORMATTING BAR ──────────────────────────────────────────
 function updateFmtBar(){
