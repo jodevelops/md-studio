@@ -1704,7 +1704,8 @@ function navJump(i){
     ta.focus();
     ta.setSelectionRange(pos,pos);
     // Scroll editor so the heading line is at the top of the viewport
-    const lh=getEditorLineHeight();
+    const taStyle=getComputedStyle(ta);
+    const lh=parseFloat(taStyle.lineHeight)||parseFloat(taStyle.fontSize)*1.5||23;
     ta.scrollTop=Math.max(0, h.line*lh);
 
     // Scroll preview pane if it's currently displayed
