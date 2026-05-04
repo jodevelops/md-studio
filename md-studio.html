@@ -1439,6 +1439,7 @@ async function applyAutoFilename(){
     toast('Name ge\xE4ndert zu "'+newName+'" (Download beim n\xE4chsten Speichern)');
   }
 }
+function dateFmt(fmt){
   const d=new Date();
   const Y=d.getFullYear(), M=String(d.getMonth()+1).padStart(2,'0');
   const D=String(d.getDate()).padStart(2,'0');
