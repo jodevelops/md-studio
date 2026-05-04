@@ -219,20 +219,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 .tb-mi{display:flex;align-items:center;gap:8px;padding:7px 14px;background:transparent;border:none;color:var(--tui);font-size:12px;cursor:pointer;white-space:nowrap;text-align:left;width:100%;transition:background .1s;font-family:system-ui,sans-serif}
 .tb-mi:hover{background:#262626;color:#fff}
 .tb-mi-sep{height:1px;background:#2a2a2a;margin:4px 10px}
-/* ── SIDEBAR TABS ── */
-.sb-tabs{display:flex;margin:0 -10px 8px;border-bottom:1px solid var(--bd)}
-.sb-tab{flex:1;padding:5px 4px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tdim);font-size:10px;cursor:pointer;transition:all .15s;text-transform:uppercase;font-weight:700;letter-spacing:.5px}
-.sb-tab:hover{color:var(--tui)}
-.sb-tab.on{border-bottom-color:var(--acc);color:var(--acc)}
-#sb-nav-list{flex:1;overflow-y:auto;padding:5px 0;display:none;flex-direction:column}
-#sb-nav-list::-webkit-scrollbar{width:3px}
-#sb-nav-list::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px}
 [data-theme="hell"] .tb-menu-dd{background:#fff;border-color:var(--bd);box-shadow:0 8px 24px rgba(0,0,0,.18)}
 [data-theme="hell"] .tb-mi{color:var(--tui)}
 [data-theme="hell"] .tb-mi:hover{background:var(--bg-btn-h)}
 [data-theme="hell"] .tb-mi-sep{background:var(--bd)}
-[data-theme="hell"] .sb-tab{color:var(--tdim)}
-[data-theme="hell"] .sb-tab:hover{color:var(--tui)}
 /* ── FORMATTING BAR ── */
 #fmt-bar{height:44px;background:var(--bg-tb);border-bottom:1px solid var(--bd);display:none;align-items:center;padding:0 8px;gap:2px;flex-shrink:0;overflow-x:auto}
 #fmt-bar::-webkit-scrollbar{height:0}
@@ -381,10 +371,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 <div id="sidebar">
   <div class="sb-head">
     <div class="logo"><div class="logo-ico">M&#8595;</div><span class="logo-txt">MD Studio</span></div>
-    <div class="sb-tabs">
-      <button class="sb-tab on" id="sb-tab-files" onclick="setSbTab('files')">Dateien</button>
-      <button class="sb-tab" id="sb-tab-nav" onclick="setSbTab('nav')">Inhalt</button>
-    </div>
     <div class="sb-btns" id="sb-file-actions">
       <button class="sbb p" id="btn-dir">&#128193; Ordner</button>
       <button class="sbb" id="btn-files">+ Laden</button>
@@ -394,7 +380,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
   <div id="dir-info">Kein Ordner ge&#246;ffnet</div>
   <div id="fsa-warn">&#9888; Ordner-Zugriff ben&#246;tigt Chrome/Edge. Nutze &quot;+ Laden&quot;.</div>
   <div id="file-list"><div style="padding:18px 12px;font-size:11.5px;color:#333;text-align:center;line-height:1.6">Ordner &#246;ffnen oder<br>Dateien laden / Drag&amp;Drop</div></div>
-  <div id="sb-nav-list"></div>
   <div class="sb-foot">MD Studio &middot; lokal &amp; offline</div>
 </div>
 <div class="sb-divider" id="sb-divider"></div>
@@ -2942,35 +2927,6 @@ $('tb-more-dd').addEventListener('click',()=>{
   setTimeout(()=>$('tb-more-dd').classList.remove('open'),100);
 });
 
-// ── SIDEBAR TABS (Dateien / Inhalt) ────────────────────────────────────────
-let _sbTab='files';
-
-function setSbTab(tab){
-  _sbTab=tab;
-  $('sb-tab-files').classList.toggle('on',tab==='files');
-  $('sb-tab-nav').classList.toggle('on',tab==='nav');
-  const showFiles=tab==='files';
-  $('sb-file-actions').style.display=showFiles?'':'none';
-  $('dir-info').style.display=showFiles?'':'none';
-  // fsa-warn is only shown when files tab is visible and FSA is unavailable
-  if(!showFiles) $('fsa-warn').style.display='none';
-  else if(!S.fsaOk) $('fsa-warn').style.display='block';
-  $('file-list').style.display=showFiles?'':'none';
-  $('sb-nav-list').style.display=showFiles?'none':'flex';
-  if(tab==='nav') renderSbNav();
-}
-
-function renderSbNav(){
-  const list=$('sb-nav-list');
-  if(!_navH||!_navH.length){
-    list.innerHTML='<div class="np-empty">'+( S.cur<0?'Keine Datei ge\xF6ffnet':'Keine \xDCberschriften')+'</div>';
-    return;
-  }
-  list.innerHTML=_navH.map((h,i)=>{
-    const cls='np-item np-h'+h.lv;
-    return '<div class="'+cls+'" onclick="navJump('+i+')" title="'+E(h.txt)+'">'+E(h.txt)+'</div>';
-  }).join('');
-}
 
 
 </script>
