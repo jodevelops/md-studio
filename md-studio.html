@@ -344,31 +344,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
   .mdb a{color:#000!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
-/* ── MASTER TEMPLATE BADGES ── */
-.fi-badge{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:4px;letter-spacing:.02em;flex-shrink:0}
-.fi-badge-m{background:var(--acc);color:#000}
-.fi-badge-a{background:#2a2a2a;color:#888}
-.fi-badge-ao{background:#8b4513;color:#f4c27a}
-[data-theme="hell"] .fi-badge-a{background:#999;color:#fff}
-/* ── ROLE DIALOG ── */
-.mtr-opt{display:flex;align-items:flex-start;gap:7px;cursor:pointer;font-size:12.5px;line-height:1.5}
-.mtr-opt input[type=radio]{margin-top:3px;flex-shrink:0}
-/* ── ROLLOUT LIST ── */
-.mro-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;cursor:pointer;padding:4px 0}
-.mro-status{color:#555;font-size:11px}
-.mro-orphans{font-size:11px;color:#9a7040;padding:2px 0 4px 22px}
-/* ── LOG TABLE ── */
-.ml-table{width:100%;border-collapse:collapse;font-size:11px}
-.ml-table th{text-align:left;padding:4px 8px;border-bottom:1px solid #2a2a2a;color:#666;font-weight:600}
-.ml-table td{padding:4px 8px;border-bottom:1px solid #1e1e1e;vertical-align:top}
-.ml-badge{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;background:#222;color:#888}
-.ml-save{background:#1a2a1a;color:#6ab06a}
-.ml-save-auto{background:#1a2a1a;color:#4a8a4a}
-.ml-field-change{background:#1a1e2a;color:#6a8ab0}
-.ml-struct-change{background:#2a1e1a;color:#b07a4a}
-.ml-rollout-applied{background:#2a2a1a;color:#b0a040}
-.ml-create-derivative{background:#1a2a2a;color:#40a0b0}
-.ml-designate-master{background:#2a1a2a;color:#a040b0}
 </style>
 </head>
 <body>
@@ -411,11 +386,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
         <div class="tb-mi-sep"></div>
         <button class="tb-mi" id="tb-toc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> IHV einf&uuml;gen</button>
         <button class="tb-mi" id="tb-cheat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> MD Syntax Referenz</button>
-        <div class="tb-mi-sep"></div>
-        <button class="tb-mi" id="tb-mt-role">&#9670; Dokument-Rolle</button>
-        <button class="tb-mi" id="tb-mt-rollout" style="display:none">&#8635; Ausrollen</button>
-        <button class="tb-mi" id="tb-mt-newderiv" style="display:none">&#10010; Neue Ableitung</button>
-        <button class="tb-mi" id="tb-mt-log">&#9873; &Auml;nderungsprotokoll</button>
         <div class="tb-mi-sep"></div>
         <button class="tb-mi" onclick="applyAutoFilename()">⚡ Auto-Name verwenden</button>
         <button class="tb-mi" id="tb-theme"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg> Design wechseln</button>
@@ -589,52 +559,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
       <button onclick="hideM('m-ffield')">Abbrechen</button>
       <button class="p" onclick="doInsertFF()">In Editor einf&#252;gen</button>
     </div>
-  </div>
-</div>
-<div class="ovl" id="m-mt-role">
-  <div class="modal">
-    <h3>◆ Dokument-Rolle festlegen</h3>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
-      <label class="mtr-opt"><input type="radio" name="mtr-role" id="mtr-none" onchange="updateRoleDialogUI()"> <strong>Keine Rolle</strong> &mdash; normales Dokument</label>
-      <label class="mtr-opt"><input type="radio" name="mtr-role" id="mtr-master" onchange="updateRoleDialogUI()"> <strong>Master-Vorlage</strong> &mdash; definiert Formularstruktur</label>
-      <div id="mtr-master-fields" style="display:none;padding-left:20px;display:none;flex-direction:column;gap:6px">
-        <label>Template-ID (stabiler Bezeichner)</label><input type="text" id="mtr-mid" placeholder="z.B. gemaeide-katalog" style="font-size:12px">
-        <label>Version (Ganzzahl)</label><input type="number" id="mtr-mver" value="1" min="1" style="width:80px;font-size:12px">
-      </div>
-      <label class="mtr-opt"><input type="radio" name="mtr-role" id="mtr-deriv" onchange="updateRoleDialogUI()"> <strong>Ableitung</strong> &mdash; Instanz eines Masters</label>
-      <div id="mtr-deriv-fields" style="display:none;flex-direction:column;gap:6px;padding-left:20px">
-        <label>Master w&#228;hlen (aus geladenen Dateien)</label>
-        <select id="mtr-master-sel" style="font-size:12px" onchange="if(this.value) $('mtr-mid-d').value=this.value"></select>
-        <label>oder Master-ID direkt eingeben</label><input type="text" id="mtr-mid-d" placeholder="z.B. gemaeide-katalog" style="font-size:12px">
-        <label>Kollektionsname</label><input type="text" id="mtr-col" placeholder="z.B. Gem&#228;lde 2024" style="font-size:12px">
-      </div>
-    </div>
-    <div class="m-act"><button onclick="hideM('m-mt-role')">Abbrechen</button><button class="p" onclick="MT.applyRole()">&#220;bernehmen</button></div>
-  </div>
-</div>
-<div class="ovl" id="m-mt-rollout">
-  <div class="modal" style="min-width:480px;max-width:640px">
-    <h3 id="mro-title">&#8635; Ausrollen</h3>
-    <div id="mro-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:320px;overflow-y:auto"></div>
-    <div style="border-top:1px solid #2a2a2a;padding-top:10px;display:flex;align-items:center;gap:10px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="mro-keep-orphans"> Verwaiste Felder behalten (Daten bleiben erhalten)</label>
-    </div>
-    <div class="m-note">Der Rumpf aller ausgew&#228;hlten Ableitungen wird durch den Master-Rumpf ersetzt. Frontmatter-Werte (Formulardaten) bleiben erhalten.</div>
-    <div class="m-act"><button onclick="hideM('m-mt-rollout')">Abbrechen</button><button class="p" onclick="MT.executeRollout()">Ausrollen &#8594;</button></div>
-  </div>
-</div>
-<div class="ovl" id="m-mt-log">
-  <div class="modal" style="min-width:560px;max-width:760px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <h3 style="margin:0" id="ml-title">&#9741; &#196;nderungsprotokoll</h3>
-      <div style="display:flex;gap:6px">
-        <button onclick="CL.showViewer(!$('ml-all-toggle').dataset.allFiles)" id="ml-all-toggle" style="font-size:11px;padding:3px 8px;cursor:pointer;border-radius:4px;border:1px solid #333;background:#222;color:var(--tui)">Alle Dateien</button>
-        <button onclick="CL.exportLog()" style="font-size:11px;padding:3px 8px;cursor:pointer;border-radius:4px;border:1px solid #333;background:#222;color:var(--tui)">&#8675; Export</button>
-        <button onclick="hideM('m-mt-log')" style="background:transparent;border:none;color:#555;cursor:pointer;font-size:16px;line-height:1;padding:0 2px">&#x2715;</button>
-      </div>
-    </div>
-    <div id="ml-body" style="max-height:400px;overflow-y:auto;font-size:11.5px"></div>
-    <div class="m-act"><button onclick="hideM('m-mt-log')">Schlie&#223;en</button></div>
   </div>
 </div>
 <div id="link-bar">
@@ -851,7 +775,7 @@ function buildFF(type,name,extra,val){
 
 function renderForm(){
   const {fm,body}=parseFM(ed().value);
-  const fmRows=Object.entries(fm).filter(([k])=>!FE.RESERVED_KEYS.has(k)).map(([k,v])=>'<span class="fm-k">'+E(k)+':</span> <span class="fm-v">'+E(v)+'</span>');
+  const fmRows=Object.entries(fm).map(([k,v])=>'<span class="fm-k">'+E(k)+':</span> <span class="fm-v">'+E(v)+'</span>');
   const fmHtml=fmRows.length?'<div class="fm-box"><div class="fm-lbl">Frontmatter</div>'+fmRows.join('<br>')+'</div>':'';
   const hasFF=/\{\{[^}]+\}\}/.test(body);
   const ico1='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="4" rx="1"/><rect x="3" y="12" width="11" height="4" rx="1"/><rect x="16" y="12" width="5" height="4" rx="1"/></svg>';
@@ -925,9 +849,6 @@ function saveFF(){
     } else src=mkFMbl(vals)+src;
   } else src=mkFMbl(vals)+src;
   ed().value=src; markMod(); renderForm();
-  const afterFM=parseFM(src).fm;
-  const changed=Object.keys(afterFM).filter(k=>!FE.RESERVED_KEYS.has(k)&&afterFM[k]!==beforeFM[k]).map(k=>k+': "'+E(beforeFM[k]||'')+'" \u2192 "'+E(afterFM[k])+'"').join('; ');
-  if(changed&&S.cur>=0) CL.log(S.files[S.cur].name,'field_change',changed);
   toast('\u2713 Formularwerte gespeichert');
 }
 
@@ -937,13 +858,11 @@ function mkFMbl(vals){
   return '---\n'+Object.entries(vals).map(([k,v])=>k+': '+v).join('\n')+'\n---\n\n';
 }
 
-// Serializes an object as YAML frontmatter block (reserved keys first, then alphabetical)
+// Serializes an object as YAML frontmatter block (alphabetical)
 function buildFMBlock(obj){
-  const PRIO=['_role','_master_id','_master_version','_master_version_applied','_collection'];
   const lines=['---'];
-  PRIO.forEach(k=>{if(obj[k]!==undefined&&obj[k]!=='') lines.push(k+': '+obj[k]);});
   Object.keys(obj).sort().forEach(k=>{
-    if(!PRIO.includes(k)&&obj[k]!==undefined) lines.push(k+': '+obj[k]);
+    if(obj[k]!==undefined) lines.push(k+': '+obj[k]);
   });
   lines.push('---','','');
   return lines.join('\n');
@@ -951,299 +870,10 @@ function buildFMBlock(obj){
 
 // ── FORM ENGINE NAMESPACE ────────────────────────────────────
 const FE = {
-  RESERVED_KEYS: new Set(['_role','_master_id','_master_version','_master_version_applied','_collection']),
-
-  // Returns [{type, name, extra}] for all data-bearing macros in a body string
-  extractMacros(body){
-    const re=/\{\{([^}]+)\}\}/g, results=[];
-    let m;
-    while((m=re.exec(body))!==null){
-      const parts=m[1].split(':');
-      const type=parts[0].trim().toLowerCase();
-      const name=(parts[1]||'').trim();
-      if(!BTN_FF.has(type)&&type!=='divider'&&type!=='note'&&name)
-        results.push({type,name,extra:parts.slice(2).map(p=>p.trim())});
-    }
-    return results;
-  },
-
-  // Diffs master body vs derivative body; returns {added,removed,changed} as arrays of field names
-  diffStructure(masterBody, derivBody){
-    const mm=this.extractMacros(masterBody);
-    const dm=this.extractMacros(derivBody);
-    const masterNames=new Set(mm.map(x=>x.name));
-    const derivNames=new Set(dm.map(x=>x.name));
-    const added=[...masterNames].filter(n=>!derivNames.has(n));
-    const removed=[...derivNames].filter(n=>!masterNames.has(n));
-    const changed=mm.filter(mx=>{
-      const dx=dm.find(d=>d.name===mx.name);
-      return dx&&(dx.type!==mx.type||dx.extra.join(':')!==mx.extra.join(':'));
-    }).map(x=>x.name);
-    return {added,removed,changed};
-  }
 };
 window.FE=FE;
 
-// ── MASTER TEMPLATE NAMESPACE ────────────────────────────────
-const MT = {
-  isMaster(file){return parseFM(file.content).fm._role==='master';},
-  isDerivative(file){return parseFM(file.content).fm._role==='derivative';},
 
-  getMasterFor(derivFile){
-    const {fm}=parseFM(derivFile.content);
-    if(fm._role!=='derivative'||!fm._master_id) return null;
-    return S.files.find(f=>{
-      const {fm:mfm}=parseFM(f.content);
-      return mfm._role==='master'&&mfm._master_id===fm._master_id;
-    })||null;
-  },
-
-  getDerivativesOf(masterFile){
-    const {fm}=parseFM(masterFile.content);
-    if(fm._role!=='master'||!fm._master_id) return [];
-    return S.files.filter(f=>{
-      const {fm:dfm}=parseFM(f.content);
-      return dfm._role==='derivative'&&dfm._master_id===fm._master_id;
-    });
-  },
-
-  updateToolbar(){
-    if(S.cur<0){
-      $('tb-mt-role').textContent='◆ Rolle';
-      $('tb-mt-rollout').style.display='none';
-      $('tb-mt-newderiv').style.display='none';
-      return;
-    }
-    const f=S.files[S.cur];
-    const isMst=this.isMaster(f);
-    const isDrv=this.isDerivative(f);
-    $('tb-mt-role').textContent=isMst?'◆ Master':isDrv?'◆ Ableitung':'◆ Rolle';
-    $('tb-mt-rollout').style.display=isMst?'inline-flex':'none';
-    $('tb-mt-newderiv').style.display=isMst?'inline-flex':'none';
-  },
-
-  openRoleDialog(){
-    if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;}
-    const {fm}=parseFM(S.files[S.cur].content);
-    const role=fm._role||'';
-    $('mtr-none').checked=!role;
-    $('mtr-master').checked=role==='master';
-    $('mtr-deriv').checked=role==='derivative';
-    const baseName=S.files[S.cur].name.replace(/\.md$/i,'').replace(/[^a-zA-Z0-9_-]/g,'-').toLowerCase();
-    $('mtr-mid').value=fm._master_id||(role==='master'?baseName:'');
-    $('mtr-mver').value=fm._master_version||'1';
-    // Fill master dropdown
-    const sel=$('mtr-master-sel');
-    sel.innerHTML='<option value="">-- Master w\xE4hlen --</option>';
-    S.files.forEach(f=>{const {fm:mf}=parseFM(f.content);if(mf._role==='master'&&mf._master_id) sel.innerHTML+='<option value="'+E(mf._master_id)+'"'+(mf._master_id===fm._master_id?' selected':'')+'>'+E(f.name)+'</option>';});
-    $('mtr-mid-d').value=fm._master_id||'';
-    $('mtr-col').value=fm._collection||'';
-    updateRoleDialogUI();
-    showM('m-mt-role');
-  },
-
-  async applyRole(){
-    if(S.cur<0) return;
-    const role=$('mtr-master').checked?'master':$('mtr-deriv').checked?'derivative':'none';
-    let src=S.files[S.cur].content;
-    const {fm:oldFM,body}=parseFM(src);
-    const newFM={...oldFM};
-    // Remove all reserved keys first
-    FE.RESERVED_KEYS.forEach(k=>delete newFM[k]);
-    if(role==='master'){
-      const mid=$('mtr-mid').value.trim();
-      const mver=parseInt($('mtr-mver').value)||1;
-      if(!mid){toast('Template-ID eingeben');return;}
-      newFM._role='master'; newFM._master_id=mid; newFM._master_version=mver;
-      CL.log(S.files[S.cur].name,'designate_master','ID: '+mid+', Version: '+mver);
-    } else if(role==='derivative'){
-      const mid=$('mtr-master-sel').value||$('mtr-mid-d').value.trim();
-      const col=$('mtr-col').value.trim();
-      if(!mid){toast('Master-ID eingeben oder Master w\xE4hlen');return;}
-      const master=S.files.find(f=>{const {fm}=parseFM(f.content);return fm._role==='master'&&fm._master_id===mid;});
-      newFM._role='derivative'; newFM._master_id=mid;
-      newFM._master_version_applied=master?parseFM(master.content).fm._master_version||'1':'0';
-      if(col) newFM._collection=col;
-      CL.log(S.files[S.cur].name,'create_derivative','Master: '+mid);
-    }
-    src=buildFMBlock(newFM)+body;
-    ed().value=src; markMod(); hideM('m-mt-role');
-    await save(false);
-    this.updateToolbar(); renderList();
-  },
-
-  createDerivative(){
-    if(S.cur<0){toast('Keine Master-Datei ge\xF6ffnet');return;}
-    const f=S.files[S.cur];
-    if(!this.isMaster(f)){toast('Aktuelle Datei ist kein Master');return;}
-    const {fm,body}=parseFM(f.content);
-    const mid=fm._master_id||'master';
-    const mver=fm._master_version||'1';
-    const col='Neue-Sammlung';
-    const newFM={_role:'derivative',_master_id:mid,_master_version_applied:mver,_collection:col};
-    const name='ableitung-'+Date.now()+'.md';
-    const content=buildFMBlock(newFM)+body;
-    const obj={name,content,handle:null,modified:true,original:''};
-    S.files.push(obj);
-    renderList();
-    openFile(S.files.length-1);
-    CL.log(name,'create_derivative','Von Master: '+mid+' v'+mver);
-    toast('✓ Neue Ableitung erstellt: "'+name+'"');
-  },
-
-  openRolloutDialog(){
-    if(S.cur<0) return;
-    const f=S.files[S.cur];
-    if(!this.isMaster(f)){toast('Aktuelle Datei ist kein Master');return;}
-    const preview=this.getRolloutPreview(S.cur);
-    if(!preview.derivatives.length){toast('Keine Ableitungen gefunden');return;}
-    const {fm:masterFM}=parseFM(f.content);
-    $('mro-title').textContent='Ausrollen von "'+f.name+'" (v'+masterFM._master_version+')';
-    let html='';
-    preview.derivatives.forEach((d,i)=>{
-      const status=d.upToDate?'aktuell':'veraltet (bei v'+d.appliedVersion+')';
-      const warn=d.orphans.length?'<span style="color:var(--warn)"> ⚠ '+d.orphans.length+' verwaiste Felder</span>':'';
-      const diffInfo=[];
-      if(d.diff.added.length) diffInfo.push('+'+d.diff.added.join(', +'));
-      if(d.diff.changed.length) diffInfo.push('~'+d.diff.changed.join(', ~'));
-      const diffStr=diffInfo.length?' ('+diffInfo.join('; ')+')':'';
-      html+='<label class="mro-item"><input type="checkbox" class="mro-cb" value="'+d.idx+'"'+(d.upToDate?'':' checked')+'> '+E(d.file.name)+'<span class="mro-status"> &mdash; '+status+diffStr+'</span>'+warn+'</label>';
-      if(d.orphans.length){
-        html+='<div class="mro-orphans">Verwaiste Felder: '+d.orphans.map(o=>'<code>'+E(o)+'</code>').join(', ')+'</div>';
-      }
-    });
-    $('mro-list').innerHTML=html;
-    showM('m-mt-rollout');
-  },
-
-  getRolloutPreview(masterIdx){
-    const master=S.files[masterIdx];
-    const {fm:masterFM,body:masterBody}=parseFM(master.content);
-    const mid=masterFM._master_id;
-    const masterVer=parseInt(masterFM._master_version||'1');
-    const derivs=S.files.map((f,i)=>({f,i})).filter(({f})=>{
-      const {fm}=parseFM(f.content);
-      return fm._role==='derivative'&&fm._master_id===mid;
-    });
-    return {
-      derivatives: derivs.map(({f,i})=>{
-        const {fm:dfm,body:dbody}=parseFM(f.content);
-        const appliedVer=parseInt(dfm._master_version_applied||'0');
-        const diff=FE.diffStructure(masterBody,dbody);
-        const masterFieldNames=new Set(FE.extractMacros(masterBody).map(m=>m.name));
-        const preserved={};
-        Object.entries(dfm).forEach(([k,v])=>{if(!FE.RESERVED_KEYS.has(k)) preserved[k]=v;});
-        const orphans=Object.keys(preserved).filter(k=>!masterFieldNames.has(k));
-        return {file:f,idx:i,appliedVersion:appliedVer,upToDate:appliedVer>=masterVer,diff,orphans};
-      })
-    };
-  },
-
-  async executeRollout(){
-    if(S.cur<0) return;
-    const master=S.files[S.cur];
-    const {fm:masterFM,body:masterBody}=parseFM(master.content);
-    const masterVer=masterFM._master_version||'1';
-    const keepOrphans=$('mro-keep-orphans').checked;
-    const targetIdxs=[...$('mro-list').querySelectorAll('.mro-cb:checked')].map(cb=>parseInt(cb.value));
-    if(!targetIdxs.length){toast('Keine Ableitungen ausgew\xE4hlt');hideM('m-mt-rollout');return;}
-    hideM('m-mt-rollout');
-    let done=0;
-    for(const targetIdx of targetIdxs){
-      const deriv=S.files[targetIdx];
-      const {fm:derivFM}=parseFM(deriv.content);
-      const preserved={};
-      Object.entries(derivFM).forEach(([k,v])=>{if(!FE.RESERVED_KEYS.has(k)) preserved[k]=v;});
-      const masterFieldNames=new Set(FE.extractMacros(masterBody).map(m=>m.name));
-      const orphans=Object.keys(preserved).filter(k=>!masterFieldNames.has(k));
-      if(!keepOrphans) orphans.forEach(k=>delete preserved[k]);
-      const newFM={_role:'derivative',_master_id:derivFM._master_id,_master_version_applied:masterVer,_collection:derivFM._collection||'',...preserved};
-      const newContent=buildFMBlock(newFM)+masterBody;
-      deriv.content=newContent; deriv.modified=true;
-      if(S.cur===targetIdx){ed().value=newContent;renderPreview();if(S.view==='form'||S.view==='form-split') renderForm();}
-      const prevCur=S.cur; S.cur=targetIdx;
-      await save(true);
-      S.cur=prevCur;
-      CL.log(deriv.name,'rollout_applied','Von Master v'+masterVer+(orphans.length?'; verwaist: '+orphans.join(','):''));
-      done++;
-    }
-    renderList(); this.updateToolbar();
-    toast('✓ Ausgerollt auf '+done+' Ableitung(en)');
-    CL.log(master.name,'struct_change','Auf '+done+' Ableitungen ausgerollt');
-  }
-};
-window.MT=MT;
-
-// ── CHANGE LOG NAMESPACE ─────────────────────────────────────
-const CL = {
-  _log: [],
-  _logHandle: null,
-  _saveTimer: null,
-
-  log(fileName,action,detail=''){
-    this._log.push({ts:new Date().toISOString(),file:fileName,action,detail});
-    if(this._log.length>500) this._log.splice(0,this._log.length-500);
-    clearTimeout(this._saveTimer);
-    this._saveTimer=setTimeout(()=>this._writeLog(),2000);
-  },
-
-  async loadLog(){
-    if(!S.dirHandle||!S.fsaOk){this._log=[];return;}
-    try{
-      const h=await S.dirHandle.getFileHandle('_mds-log.json',{create:false});
-      this._logHandle=h;
-      const f=await h.getFile();
-      const data=JSON.parse(await f.text());
-      this._log=Array.isArray(data.entries)?data.entries:[];
-    }catch(e){this._log=[];this._logHandle=null;}
-  },
-
-  async _writeLog(){
-    if(!S.dirHandle||!S.fsaOk) return;
-    try{
-      if(!this._logHandle) this._logHandle=await S.dirHandle.getFileHandle('_mds-log.json',{create:true});
-      const w=await this._logHandle.createWritable();
-      await w.write(JSON.stringify({version:1,entries:this._log},null,2));
-      await w.close();
-    }catch(e){}
-  },
-
-  getForFile(name){
-    return this._log.filter(e=>e.file===name).slice().reverse();
-  },
-
-  getAll(){
-    return this._log.slice().reverse();
-  },
-
-  showViewer(allFiles){
-    const entries=allFiles?this.getAll():this.getForFile(S.files[S.cur]?.name||'');
-    const fname=S.files[S.cur]?.name||'';
-    $('ml-title').textContent=allFiles?'Protokoll — Alle Dateien':'Protokoll — '+fname;
-    $('ml-all-toggle').textContent=allFiles?'Nur aktuelle Datei':'Alle Dateien';
-    $('ml-all-toggle').dataset.allFiles=allFiles?'1':'';
-    if(!entries.length){$('ml-body').innerHTML='<div style="padding:12px;color:#666;font-size:12px">Keine Eintr\xE4ge vorhanden.</div>';showM('m-mt-log');return;}
-    const actionLabels={save:'Speichern',save_auto:'Auto-Speichern',field_change:'Feld ge\xE4ndert',struct_change:'Struktur',rollout_applied:'Ausgerollt',rollout_skipped:'Ausrollen skip',create_derivative:'Ableitung erstellt',designate_master:'Master gesetzt'};
-    let html='<table class="ml-table"><thead><tr><th>Zeitpunkt</th><th>Datei</th><th>Aktion</th><th>Detail</th></tr></thead><tbody>';
-    entries.forEach(e=>{
-      const dt=new Date(e.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      const aLbl=actionLabels[e.action]||e.action;
-      html+='<tr><td style="white-space:nowrap">'+E(dt)+'</td><td>'+E(e.file)+'</td><td><span class="ml-badge ml-'+e.action.replace(/_/g,'-')+'">'+E(aLbl)+'</span></td><td>'+E(e.detail)+'</td></tr>';
-    });
-    html+='</tbody></table>';
-    $('ml-body').innerHTML=html;
-    showM('m-mt-log');
-  },
-
-  exportLog(){
-    const data=JSON.stringify({version:1,entries:this._log},null,2);
-    const b=new Blob([data],{type:'application/json'});
-    const u=URL.createObjectURL(b);
-    const a=document.createElement('a'); a.href=u; a.download='_mds-log.json'; a.click();
-    URL.revokeObjectURL(u);
-  }
-};
-window.CL=CL;
 
 // ── FILE SYSTEM ─────────────────────────────────────────────
 async function openDir(){
@@ -1261,7 +891,6 @@ async function openDir(){
       const f=await h.getFile(), content=await f.text();
       S.files.push({name,content,handle:h,modified:false,original:content});
     }
-    await CL.loadLog();
     renderList(); toast(S.files.length+' Datei(en) geladen');
     if(S.files.length) openFile(0);
   }catch(e){if(e.name!=='AbortError') toast('Fehler: '+e.message);}
@@ -1305,7 +934,6 @@ function openFile(idx){
   $('fname').textContent=f.name;
   renderPreview(); updateStats(); renderList(); showWork(); renderEdSyntax();
   if(S.view==='form'||S.view==='form-split') renderForm();
-  MT.updateToolbar();
 }
 
 // ── SAVE ────────────────────────────────────────────────────
@@ -1318,13 +946,11 @@ async function save(silent){
       await w.write(f.content); await w.close();
       f.modified=false; f.original=f.content;
       renderList(); setSaved('Gespeichert','ok');
-      CL.log(f.name,silent?'save_auto':'save');
       if(!silent) toast('\u2713 Gespeichert');
     }catch(e){toast('Fehler: '+e.message);}
   } else {
     dl(f.content,f.name,'text/markdown');
     f.modified=false; renderList();
-    CL.log(f.name,silent?'save_auto':'save','Download');
     if(!silent) toast('\u2193 Als Download gespeichert');
   }
 }
@@ -1515,22 +1141,9 @@ function renderList(){
   if(!S.files.length){list.innerHTML='<div style="padding:16px 12px;font-size:11px;color:#333;text-align:center;line-height:1.6">Keine Dateien geladen</div>';return;}
   list.innerHTML='';
   S.files.forEach((f,i)=>{
-    const {fm}=parseFM(f.content);
-    const role=fm._role||'';
-    let badge='';
-    if(role==='master'){
-      badge='<span class="fi-badge fi-badge-m" title="Master-Template">M</span>';
-    } else if(role==='derivative'){
-      // Check if out of date vs its master
-      const master=S.files.find(mf=>{const {fm:mfm}=parseFM(mf.content);return mfm._role==='master'&&mfm._master_id===fm._master_id;});
-      const masterVer=master?parseInt(parseFM(master.content).fm._master_version||'1'):0;
-      const appliedVer=parseInt(fm._master_version_applied||'0');
-      const outdated=master&&appliedVer<masterVer;
-      badge='<span class="fi-badge '+(outdated?'fi-badge-ao':'fi-badge-a')+'" title="Ableitung'+(outdated?' (veraltet)':(master?' (aktuell)':''))+'">A'+(outdated?'*':'')+'</span>';
-    }
     const d=document.createElement('div');
     d.className='fi'+(i===S.cur?' active':'')+(f.modified?' mod':'');
-    d.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="fi-name" title="'+f.name+'">'+f.name+'</span>'+badge+'<span class="fi-dot"></span>';
+    d.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="fi-name" title="'+f.name+'">'+f.name+'</span><span class="fi-dot"></span>';
     d.onclick=()=>{if(i!==S.cur) openFile(i);};
     list.appendChild(d);
   });
@@ -1992,14 +1605,6 @@ async function handleDrop(e){
   toast(files.length+' Datei(en) geladen');
 }
 
-// ── ROLE DIALOG UI HELPER ────────────────────────────────────
-function updateRoleDialogUI(){
-  const isMaster=$('mtr-master').checked;
-  const isDeriv=$('mtr-deriv').checked;
-  $('mtr-master-fields').style.display=isMaster?'flex':'none';
-  $('mtr-deriv-fields').style.display=isDeriv?'flex':'none';
-}
-
 // ── EVENT WIRING ─────────────────────────────────────────────
 $('btn-dir').onclick   = openDir;
 $('btn-files').onclick = openFiles;
@@ -2019,10 +1624,6 @@ $('tb-search').onclick = toggleSearch;
 $('tb-cheat').onclick  = ()=>showM('m-cheat');
 $('tb-theme').onclick  = cycleTheme;
 $('tb-pdf').onclick    = exportPDF;
-$('tb-mt-role').onclick    = ()=>MT.openRoleDialog();
-$('tb-mt-rollout').onclick = ()=>MT.openRolloutDialog();
-$('tb-mt-newderiv').onclick= ()=>MT.createDerivative();
-$('tb-mt-log').onclick     = ()=>CL.showViewer(false);
 
 ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();_syncOvWidth();});
 ed().addEventListener('keyup',updateCursor);
@@ -2130,7 +1731,7 @@ document.addEventListener('keydown',e=>{
   if(ctrl&&e.key==='b'&&S.cur>=0){e.preventDefault();fmtWrap('**','**','Fetter Text');return;}
   if(ctrl&&e.key==='i'&&!e.shiftKey&&S.cur>=0){e.preventDefault();fmtWrap('*','*','Kursiver Text');return;}
   if(ctrl&&e.key==='k'&&S.cur>=0){e.preventDefault();openLinkBar();return;}
-  if(e.key==='Escape'){closeSearch();$('link-bar').classList.remove('vis');['m-rename','m-saveas','m-date','m-cheat','m-table','m-ffield','m-mt-role','m-mt-rollout','m-mt-log'].forEach(hideM);}
+  if(e.key==='Escape'){closeSearch();$('link-bar').classList.remove('vis');['m-rename','m-saveas','m-date','m-cheat','m-table','m-ffield'].forEach(hideM);}
 });
 
 if(!S.fsaOk){
