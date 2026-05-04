@@ -2020,7 +2020,7 @@ $('tb-mt-rollout').onclick = ()=>MT.openRolloutDialog();
 $('tb-mt-newderiv').onclick= ()=>MT.createDerivative();
 $('tb-mt-log').onclick     = ()=>CL.showViewer(false);
 
-ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();});
+ed().addEventListener('input',()=>{renderPreview();updateStats();markMod();if(S.view==='form'||S.view==='form-split') renderForm();_syncOvWidth();});
 ed().addEventListener('keyup',updateCursor);
 ed().addEventListener('click',updateCursor);
 ed().addEventListener('scroll',()=>{
@@ -2302,6 +2302,7 @@ try{
 initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
 updateFmtBar(); updateFfBar();
 if(typeof ResizeObserver!=='undefined') new ResizeObserver(_syncOvWidth).observe(ed());
+window.addEventListener('resize',_syncOvWidth);
 
 // ── FORMATTING BAR ──────────────────────────────────────────
 function updateFmtBar(){
