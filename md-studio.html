@@ -213,8 +213,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
 #toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(8px);background:#1e1e1e;border:1px solid #2e2e2e;color:#eee;padding:7px 16px;border-radius:20px;font-size:11.5px;z-index:200;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ── TOOLBAR DROPDOWN MENU ── */
-.tb-menu{position:relative;display:inline-flex;align-items:center}
-.tb-menu-dd{position:absolute;top:calc(100% + 4px);right:0;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:6px;padding:4px 0;min-width:210px;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.7);display:none;flex-direction:column}
+.tb-menu{display:inline-flex;align-items:center}
+.tb-menu-dd{position:fixed;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:6px;padding:4px 0;min-width:210px;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.7);display:none;flex-direction:column}
 .tb-menu-dd.open{display:flex}
 .tb-mi{display:flex;align-items:center;gap:8px;padding:7px 14px;background:transparent;border:none;color:var(--tui);font-size:12px;cursor:pointer;white-space:nowrap;text-align:left;width:100%;transition:background .1s;font-family:system-ui,sans-serif}
 .tb-mi:hover{background:#262626;color:#fff}
@@ -2923,7 +2923,12 @@ initPreviewLinks();
 
 // ── TOOLBAR DROPDOWN MENU ──────────────────────────────────────────────────
 function toggleMoreMenu(){
-  $('tb-more-dd').classList.toggle('open');
+  const dd=$('tb-more-dd');
+  if(dd.classList.contains('open')){dd.classList.remove('open');return;}
+  const btn=$('tb-more').getBoundingClientRect();
+  dd.style.top=(btn.bottom+4)+'px';
+  dd.style.right=(window.innerWidth-btn.right)+'px';
+  dd.classList.add('open');
 }
 
 // Close dropdown when clicking outside
