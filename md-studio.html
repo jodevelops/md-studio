@@ -428,6 +428,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
         <button class="tb-mi" id="tb-mt-newderiv" style="display:none">&#10010; Neue Ableitung</button>
         <button class="tb-mi" id="tb-mt-log">&#9873; &Auml;nderungsprotokoll</button>
         <div class="tb-mi-sep"></div>
+        <button class="tb-mi" onclick="applyAutoFilename()">⚡ Auto-Name verwenden</button>
         <button class="tb-mi" id="tb-theme"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg> Design wechseln</button>
         <div class="tb-mi-sep"></div>
         <button class="tb-mi" id="tb-pdf-mi" onclick="exportPDF()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF drucken</button>
@@ -525,6 +526,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
   <div class="modal">
     <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Als neue Version</h3>
     <label>Dateiname</label><input type="text" id="sa-name" placeholder="datei_v2.md">
+    <div class="m-note" id="sa-auto-hint" style="cursor:pointer;color:var(--acc)" onclick="$('sa-name').value=generateFilenameFromFrontmatter(ed().value)">⚡ <span style="text-decoration:underline">Automatisch</span>: ......</div>
     <div class="m-note">Wird als neue Datei gespeichert oder heruntergeladen.</div>
     <div class="m-act"><button onclick="hideM('m-saveas')">Abbrechen</button><button class="p" onclick="doSaveAs()">Exportieren</button></div>
   </div>
@@ -1345,7 +1347,10 @@ function openSaveAsDialog(){
   let next;
   if(vm){const pts=vm[1].split('.'); pts[pts.length-1]=String(parseInt(pts[pts.length-1])+1); next=base.replace(/_v[\d.]+$/,'_v'+pts.join('.'));}
   else next=base+'_v2';
-  $('sa-name').value=next+'.md'; showM('m-saveas');
+  const autoName=generateFilenameFromFrontmatter(ed().value);
+  $('sa-name').value=next+'.md';
+  $('sa-auto-hint').textContent='Automatisch: '+autoName;
+  showM('m-saveas');
 }
 
 async function doSaveAs(){
@@ -1394,7 +1399,46 @@ function dl(content,name,type){
 }
 
 // ── DATE / VERSION ───────────────────────────────────────────
-function dateFmt(fmt){
+function generateFilenameFromFrontmatter(src){
+  const {fm}=parseFM(src);
+  const title=(fm.title||'dokument').trim().toLowerCase()
+    .replace(/[^\w\s-äöüß]/g,'')
+    .replace(/\s+/g,'-')
+    .replace(/-+/g,'-');
+  const date=fm.date||'';
+  const author=(fm.author||'').trim().toLowerCase().split(/[\s,;]+/)[0];
+  const version=(fm.version||'1.0').replace(/\./g,'-');
+
+  const parts=[];
+  if(date) parts.push(date);
+  if(author) parts.push(author);
+  if(title) parts.push(title);
+  if(version&&version!=='1-0') parts.push('v'+version);
+
+  const filename=parts.filter(Boolean).join('_');
+  return (filename||'dokument')+'.md';
+}
+
+async function applyAutoFilename(){
+  if(S.cur<0){toast('Keine Datei ge\xF6ffnet'); return;}
+  const newName=generateFilenameFromFrontmatter(ed().value);
+  const f=S.files[S.cur];
+  if(newName===f.name){toast('Name ist bereits optimal'); return;}
+  $('tb-more-dd').classList.remove('open');
+  if(f.handle&&S.dirHandle&&S.fsaOk){
+    try{
+      const content=ed().value;
+      const nh=await S.dirHandle.getFileHandle(newName,{create:true});
+      const w=await nh.createWritable(); await w.write(content); await w.close();
+      try{await S.dirHandle.removeEntry(f.name);}catch{}
+      f.name=newName; f.handle=nh; f.content=content;
+      $('fname').textContent=newName; renderList(); toast('✓ Umbenannt zu "'+newName+'"');
+    }catch(e){toast('Fehler: '+e.message);}
+  } else {
+    f.name=newName; $('fname').textContent=newName; renderList();
+    toast('Name ge\xE4ndert zu "'+newName+'" (Download beim n\xE4chsten Speichern)');
+  }
+}
   const d=new Date();
   const Y=d.getFullYear(), M=String(d.getMonth()+1).padStart(2,'0');
   const D=String(d.getDate()).padStart(2,'0');
