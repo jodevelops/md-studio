@@ -6,7 +6,7 @@
 [![Single File](https://img.shields.io/badge/app-single%20html-blue.svg)]()
 [![Offline](https://img.shields.io/badge/offline-ready-green.svg)]()
 
-**Links:** [Live-Demo](https://jodevelops.github.io/md-studio/md-studio.html) · [Handbuch](handbuch.md) · [Direktdownload](https://raw.githubusercontent.com/jodevelops/md-studio/main/md-studio.html)
+**Links:** [Live-Demo](https://jodevelops.github.io/md-studio/md-studio.html) · [Handbook](handbuch.md) · [Direktdownload](https://raw.githubusercontent.com/jodevelops/md-studio/main/md-studio.html)
 
 ---
 
@@ -109,7 +109,7 @@ curl -O https://raw.githubusercontent.com/jodevelops/md-studio/main/md-studio.ht
 md-studio/
 ├── md-studio.html   # komplette App
 ├── README.md        # Kurzüberblick
-├── handbuch.md      # Vollständiges Handbuch
+├── handbuch.md      # Vollständiges Handbook
 └── LICENSE
 ```
 

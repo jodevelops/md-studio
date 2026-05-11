@@ -1,13 +1,13 @@
 ---
-title: MD Studio — Handbuch
+title: MD Studio — Handbook
 version: 1.1
 date: 2026-05-11
 author: MD Studio
 ---
 
-# MD Studio — Handbuch
+# MD Studio — Handbook
 
-Dieses Handbuch beschreibt die aktuelle Funktionsweise von `md-studio.html`.
+Dieses Handbook beschreibt die aktuelle Funktionsweise von `md-studio.html`.
 
 ---
 
