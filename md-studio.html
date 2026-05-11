@@ -375,6 +375,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg-app);col
     <button class="tb" id="tb-form-split" title="Formular-Split-Ansicht"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/><line x1="6" y1="8" x2="8" y2="8"/><line x1="6" y1="11" x2="9" y2="11"/><line x1="6" y1="14" x2="7" y2="14"/><rect x="15" y="8" width="5" height="2" rx=".5"/><rect x="15" y="12" width="4" height="2" rx=".5"/></svg></button>
     <div class="sep"></div>
     <button class="tb" id="tb-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Suchen</button>
+    <button class="tb" id="tb-lang" title="Sprache wechseln">DE</button>
     <button class="tb" id="tb-nav" title="Gliederung rechts ein/ausblenden"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>
     <div class="sp"></div>
     <div class="tb-menu" id="tb-more-wrap">
@@ -849,10 +850,10 @@ function saveFF(){
     } else src=mkFMbl(vals)+src;
   } else src=mkFMbl(vals)+src;
   ed().value=src; markMod(); renderForm();
-  toast('\u2713 Formularwerte gespeichert');
+  toast(tr('toastFormSaved'));
 }
 
-function resetFF(){renderForm();toast('Formular zur\xFCckgesetzt');}
+function resetFF(){renderForm();toast(tr('toastFormReset'));}
 
 function mkFMbl(vals){
   return '---\n'+Object.entries(vals).map(([k,v])=>k+': '+v).join('\n')+'\n---\n\n';
@@ -923,7 +924,7 @@ function newFile(){
   const name='neu-'+new Date().toISOString().slice(0,10)+'.md';
   const content='---\ntitle: Neues Dokument\ndate: '+dateFmt('YYYY-MM-DD')+'\nversion: 1.0\nauthor: \n---\n\n# Titel\n\nInhalt hier...\n';
   S.files.push({name,content,handle:null,modified:true,original:''});
-  renderList(); openFile(S.files.length-1); toast('Neue Datei erstellt');
+  renderList(); openFile(S.files.length-1); toast(tr('toastNew'));
 }
 
 function openFile(idx){
@@ -1539,7 +1540,7 @@ function clearHL(){
 function rxE(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 
 // ── PDF ──────────────────────────────────────────────────────
-function exportPDF(){if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;} window.print();}
+function exportPDF(){if(S.cur<0){toast(tr('toastNoFile'));return;} window.print();}
 
 // ── MODALS ───────────────────────────────────────────────────
 function showM(id){$(id).classList.add('vis');}
@@ -1598,11 +1599,11 @@ async function handleDrop(e){
   e.preventDefault(); e.stopPropagation();
   $('empty').classList.remove('dov');
   const files=[...e.dataTransfer.files].filter(f=>/\.(md|markdown)$/i.test(f.name));
-  if(!files.length){toast('Keine .md Dateien');return;}
+  if(!files.length){toast(tr('toastNoMd'));return;}
   for(const f of files){const content=await f.text(); upsert({name:f.name,content,handle:null,modified:false,original:content});}
   renderList();
   if(S.cur<0&&S.files.length) openFile(0);
-  toast(files.length+' Datei(en) geladen');
+  toast(tr('toastLoaded',files.length));
 }
 
 // ── EVENT WIRING ─────────────────────────────────────────────
@@ -1612,7 +1613,7 @@ $('btn-new').onclick   = newFile;
 $('tb-save').onclick   = ()=>save(false);
 $('tb-saveas').onclick = openSaveAsDialog;
 $('tb-rename').onclick = openRenameDialog;
-$('tb-date').onclick   = ()=>{if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;} updDPrev(); showM('m-date');};
+$('tb-date').onclick   = ()=>{if(S.cur<0){toast(tr('toastNoFile'));return;} updDPrev(); showM('m-date');};
 $('tb-split').onclick  = ()=>setView('split');
 $('tb-edit').onclick   = ()=>setView('editor');
 $('tb-view').onclick   = ()=>setView('preview');
@@ -1621,6 +1622,7 @@ $('tb-form-split').onclick  = ()=>setView('form-split');
 $('tb-nav').onclick    = toggleNav;
 $('tb-toc').onclick    = insertTOC;
 $('tb-search').onclick = toggleSearch;
+$('tb-lang').onclick = toggleLanguage;
 $('tb-cheat').onclick  = ()=>showM('m-cheat');
 $('tb-theme').onclick  = cycleTheme;
 $('tb-pdf').onclick    = exportPDF;
@@ -1867,7 +1869,7 @@ function attachHeadingHandlers(container){
 
 // ── TOC INSERT ───────────────────────────────────────────────
 function insertTOC(){
-  if(S.cur<0){toast('Keine Datei ge\xF6ffnet');return;}
+  if(S.cur<0){toast(tr('toastNoFile'));return;}
   const ta=ed(), val=ta.value;
   // Check if {{toc}} already exists
   if(/\{\{toc[^}]*\}\}/i.test(val)){toast('IHV (\u007B\u007Btoc\u007D\u007D) ist bereits vorhanden');return;}
@@ -1888,7 +1890,7 @@ let _themeIdx=0;
 function cycleTheme(){
   _themeIdx=(_themeIdx+1)%THEMES.length;
   _applyTheme(THEMES[_themeIdx].id);
-  toast('Design: '+THEMES[_themeIdx].lbl);
+  toast(tr('toastTheme',THEMES[_themeIdx].lbl));
 }
 
 function _applyTheme(id){
@@ -1897,6 +1899,35 @@ function _applyTheme(id){
   try{localStorage.setItem('mds-theme',id);}catch{}
 }
 
+
+// ── I18N ─────────────────────────────────────────────────────
+const I18N={
+  de:{langBtn:'DE',search:'Suchen',save:'Speichern',folder:'Ordner',load:'+ Laden',new:'✦ Neu',noFile:'Keine Datei',ready:'Bereit',noFolder:'Kein Ordner geöffnet',dropHint:'oder .md Dateien hier ablegen',emptyHint:'Ordner öffnen oder Markdown-Dateien laden',
+      more:'⋮ Mehr',langSwitch:'Sprache: Deutsch',saveBtn:'Speichern',
+      toastNoFile:'Keine Datei geöffnet',toastNoMd:'Keine .md Dateien',toastLoaded:n=>`${n} Datei(en) geladen`,toastNew:'Neue Datei erstellt',toastFormSaved:'✓ Formularwerte gespeichert',toastFormReset:'Formular zurückgesetzt',toastTsv:'TSV → Tabelle konvertiert',toastTheme:t=>`Design: ${t}`},
+  en:{langBtn:'EN',search:'Search',save:'Save',folder:'Folder',load:'+ Load',new:'✦ New',noFile:'No file',ready:'Ready',noFolder:'No folder opened',dropHint:'or drop .md files here',emptyHint:'Open a folder or load Markdown files',
+      more:'⋮ More',langSwitch:'Language: English',saveBtn:'Save',
+      toastNoFile:'No file open',toastNoMd:'No .md files',toastLoaded:n=>`${n} file(s) loaded`,toastNew:'New file created',toastFormSaved:'✓ Form values saved',toastFormReset:'Form reset',toastTsv:'TSV → table converted',toastTheme:t=>`Theme: ${t}`}}
+};
+let CUR_LANG='de';
+function tr(k,...a){const v=I18N[CUR_LANG][k]??I18N.de[k]??k;return typeof v==='function'?v(...a):v;}
+function applyI18n(){
+  $('btn-dir').innerHTML='&#128193; '+tr('folder');
+  $('btn-files').textContent=tr('load');
+  $('btn-new').innerHTML='&#10022; '+tr('new');
+  $('dir-info').textContent=tr('noFolder');
+  $('tb-save').innerHTML=$('tb-save').innerHTML.replace(/>[^<]*$/,'> '+tr('save'));
+  $('tb-search').innerHTML=$('tb-search').innerHTML.replace(/>[^<]*$/,'> '+tr('search'));
+  $('tb-more').innerHTML=tr('more');
+  $('tb-lang').textContent=tr('langBtn');
+  $('tb-lang').title=tr('langSwitch');
+  if(S.cur<0) $('fname').textContent=tr('noFile');
+  $('st-save').innerHTML='<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> '+tr('ready');
+  const p=document.querySelector('#empty p'); if(p) p.textContent=tr('emptyHint');
+  const dh=document.querySelector('.drop-hint'); if(dh) dh.textContent=tr('dropHint');
+}
+function toggleLanguage(){CUR_LANG=CUR_LANG==='de'?'en':'de';try{localStorage.setItem('mds-lang',CUR_LANG);}catch{} applyI18n();}
+
 // ── INIT ─────────────────────────────────────────────────────
 // Restore saved theme
 try{
@@ -1904,7 +1935,8 @@ try{
   if(saved){const idx=THEMES.findIndex(t=>t.id===saved);if(idx>=0){_themeIdx=idx;_applyTheme(saved);}}
 }catch{}
 
-initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved('Bereit');
+try{const l=localStorage.getItem('mds-lang');if(l==='en'||l==='de')CUR_LANG=l;}catch{}
+initDrag(); initSbDrag(); initNavDrag(); initScrollSync(); initDragDrop(); startAutoSave(); setSaved(tr('ready')); applyI18n();
 updateFmtBar(); updateFfBar();
 if(typeof ResizeObserver!=='undefined') new ResizeObserver(_syncOvWidth).observe(ed());
 window.addEventListener('resize',_syncOvWidth);
@@ -2098,7 +2130,7 @@ ed().addEventListener('paste',function(e){
   ta.value=before+pfx+md+ta.value.slice(pos);
   ta.selectionStart=ta.selectionEnd=pos+pfx.length+md.length;
   markMod();renderPreview();
-  toast('TSV \u2192 Tabelle konvertiert');
+  toast(tr('toastTsv'));
 });
 
 // ── LINK BAR ──────────────────────────────────────────────────
